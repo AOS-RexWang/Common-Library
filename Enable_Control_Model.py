@@ -1,7 +1,7 @@
 """
  * @File       : Enable_Control_Model.py
- * @Version    : V1.0.0
- * @Date       : April 27, 2022
+ * @Version    : V1.1.0
+ * @Date       : July 01, 2022
  * @Brief      : Child class of Enable Control.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -11,6 +11,7 @@
 from Library.INSTR import Enable_Control
 
 class Keithley_2400(Enable_Control):
+    Model_Name = "Keithley_2400"
     CMD_Set_Source_Mode = ":SOURce:FUNCtion:MODE %s"
     CMD_Set_Beeper_State = ":SYSTem:BEEPer:STATe %d"
     CMD_Set_Voltage = ":SOURce:VOLTage:LEVel:IMMediate:AMPLitude %.4f"
@@ -33,6 +34,7 @@ class Keithley_2400(Enable_Control):
     CMD_Set_Measurement_Off = ":SENSe:FUNCtion:OFF '%s'"
     CMD_Set_All_Measurement_On = ":SENSe:FUNCtion:ON:ALL"
     CMD_Set_All_Measurement_Off = ":SENSe:FUNCtion:OFF:ALL"
+    CMD_Trigger = ""
     CMD_Output_State_On = ":OUTPut:STATe ON"
     CMD_Output_State_Off = ":OUTPut:STATe OFF"
     CMD_Get_Output_State = ":OUTPut?"
@@ -42,6 +44,7 @@ class Keithley_2400(Enable_Control):
     CMD_Set_Idle = ":ABORt"
 
 class Keysight_E3632A(Enable_Control):
+    Model_Name = "Keysight_E3632A"
     CMD_Set_Source_Mode = ""
     CMD_Set_Beeper_State = ""
     CMD_Set_Voltage = "SOURce:VOLTage %.3f"
@@ -64,8 +67,42 @@ class Keysight_E3632A(Enable_Control):
     CMD_Set_Measurement_Off = ""
     CMD_Set_All_Measurement_On = ""
     CMD_Set_All_Measurement_Off = ""
+    CMD_Trigger = ""
     CMD_Output_State_On = "OUTPut:STATe ON"
     CMD_Output_State_Off = "OUTPut:STATe OFF"
+    CMD_Get_Output_State = ""
+    CMD_Initiate_Measurement = ""
+    CMD_Set_Arm_Count = ""
+    CMD_Set_Arm_Count_Infinite = ""
+    CMD_Set_Idle = ""
+
+class AFG31000_Series(Enable_Control):
+    Model_Name = "AFG31000_Series"
+    CMD_Set_Source_Mode = ""
+    CMD_Set_Beeper_State = ""
+    CMD_Set_Voltage = "SOURce1:VOLTage:LEVel:IMMediate:HIGH %f"
+    CMD_Set_Source_Current_Amplitude = ""
+    CMD_Set_Source_Voltage_Range = ""
+    CMD_Set_Source_Current_Range = ""
+    CMD_Set_Source_Voltage_Limit = ""
+    CMD_Set_Sense_Voltage_Range = ""
+    CMD_Set_Sense_Voltage_Limit = ""
+    CMD_Set_Sense_Current_Range = ""
+    CMD_Set_Sense_Current_Limit = ""
+    CMD_Set_Sense_Averaging_Type = ""
+    CMD_Set_Sense_Averaging_Count = ""
+    CMD_Set_Sense_Averaging_State = ""
+    CMD_Set_Remote_Sense_On = ""
+    CMD_Set_Remote_Sense_Off = ""
+    CMD_Concurrent_Measurement_State_On = ""
+    CMD_Concurrent_Measurement_State_Off = ""
+    CMD_Set_Measurement_On = ""
+    CMD_Set_Measurement_Off = ""
+    CMD_Set_All_Measurement_On = ""
+    CMD_Set_All_Measurement_Off = ""
+    CMD_Trigger = ""
+    CMD_Output_State_On = "OUTPut1:STATe ON"
+    CMD_Output_State_Off = "OUTPut1:STATe OFF"
     CMD_Get_Output_State = ""
     CMD_Initiate_Measurement = ""
     CMD_Set_Arm_Count = ""

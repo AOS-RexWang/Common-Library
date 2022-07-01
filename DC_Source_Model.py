@@ -1,7 +1,7 @@
 """
  * @File       : DC_Source_Model.py
- * @Version    : V1.0.0
- * @Date       : April 27, 2022
+ * @Version    : V1.1.0
+ * @Date       : July 01, 2022
  * @Brief      : Child class of DC Source.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -117,6 +117,34 @@ class Ametek_AST200_17AR(DC_Source):
     CMD_Set_Output_State_On          = "OUTPut:STATe ON"
     CMD_Set_Output_State_Off         = "OUTPut:STATe OFF"
     CMD_Get_Output_State             = ""
+    CMD_Set_Output_Channel_State_On  = ""
+    CMD_Set_Output_Channel_State_Off = ""
+    CMD_Set_Output_Series_State_On   = ""
+    CMD_Set_Output_Series_State_Off  = ""
+
+class Keithley_2260B_Series(DC_Source):
+    Model_Name                       = "Keithley_2260B_Series"
+    CMD_Set_Output_Channel           = ""
+    CMD_Set_Voltage                  = "VOLTage %.6f"
+    CMD_Set_Voltage_Limit_State_On   = ""
+    CMD_Set_Voltage_Limit_State_Off  = ""
+    CMD_Set_Voltage_Limit            = "VOLTage:PROTection %.6f"
+    CMD_Set_Voltage_Slew_Rate        = ""
+    CMD_Set_Current                  = "CURRent %.6f"
+    CMD_Set_Current_Limit_State_On   = "CURRent:PROTection:STATe ON"
+    CMD_Set_Current_Limit_State_Off  = "CURRent:PROTection:STATe OFF"
+    CMD_Set_Current_Limit            = "CURRent:PROTection %.6f"
+    CMD_Set_Current_Slew_Rate        = ""
+    CMD_Set_Remote_Sense_On          = ""
+    CMD_Set_Remote_Sense_Off         = ""
+
+    CMD_Measure_Voltage              = "MEASure:VOLTage?"
+    CMD_Measure_Current              = "MEASure:CURRent?"
+    CMD_Measure_Power                = "MEASure:POWer?"
+
+    CMD_Set_Output_State_On          = "OUTPut ON"
+    CMD_Set_Output_State_Off         = "OUTPut OFF"
+    CMD_Get_Output_State             = "OUTPut?"
     CMD_Set_Output_Channel_State_On  = ""
     CMD_Set_Output_Channel_State_Off = ""
     CMD_Set_Output_Series_State_On   = ""

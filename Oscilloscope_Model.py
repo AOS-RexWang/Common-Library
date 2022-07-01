@@ -1,7 +1,7 @@
 """
  * @File       : Oscilloscope_Model.py
- * @Version    : V1.0.0
- * @Date       : April 27, 2022
+ * @Version    : V1.1.0
+ * @Date       : July 01, 2022
  * @Brief      : Child class of Oscilloscope.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -15,11 +15,14 @@ class Lecroy_HDO4034A(Oscilloscope):
     Model_Name                              = "Lecroy_HDO4034A"
     CMD_Clear_Sweeps                        = "CLEAR_SWEEPS"
     CMD_Get_Channel_Attenuation             = "C%d:ATTENUATION?"
+    CMD_Get_Channel_Range                   = ""
     CMD_Get_Measurement_Statistics_Value    = "PARAMETER_STATISTICS? CUST, P%d"
     VAR_Get_Measurement_Statistics_Value    = {"LAST":"LAST", "MEAN":"AVG", "MIN":"LOW", "MAX":"HIGH", "NUM":"SWEEPS"}
     CMD_Get_Measurement_Value               = "C%d:PARAMETER_VALUE? %s"
+    CMD_Get_Probe_Degauss_State             = "C%d:PROBE_DEGAUSS?"
     CMD_Get_Time_Scale                      = "TIME_DIV?"
     CMD_Get_Trigger_Channel                 = ""
+    CMD_Get_Trigger_Slope                   = "C%d:TRIG_SLOPE?"
     CMD_Get_Trigger_Type                    = "TRIG_SELECT?"
     CMD_Measurement_Clear                   = "PARAMETER_CLR"
     CMD_Measurement_Delete                  = "PARAMETER_CUSTOM %d, NULL, C1"
@@ -38,6 +41,8 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Set_Channel_Label                   = 'vbs app.Acquisition.C%d.LabelsText = "%s"'
     CMD_Set_Channel_Label_State             = "vbs app.Acquisition.C%d.ViewLabels = %d"
     CMD_Set_Channel_Noise_Filter            = 'vbs app.Acquisition.Channels("C%d").EnhanceResType = %d'
+    CMD_Set_Channel_Range                   = ""
+    CMD_Set_Channel_Range_Mode              = ""
     CMD_Set_Channel_Trace_State_Off         = "C%d:TRACE OFF"
     CMD_Set_Channel_Trace_State_On          = "C%d:TRACE ON"
     CMD_Set_Channel_Voltage_Offset          = "C%d:OFFSET %f"
@@ -49,6 +54,7 @@ class Lecroy_HDO4034A(Oscilloscope):
     VAR_Set_Display_Grid                    = {"Overlay":"SINGLE", "Stacked":"AUTO"}
     CMD_Set_Display_State_Off               = "DISPLAY OFF"
     CMD_Set_Display_State_On                = "DISPLAY ON"
+    CMD_Set_Probe_Degauss                   = ""
     CMD_Set_Time_Scale                      = "TIME_DIV %.15f"
     CMD_Set_Trigger_Channel                 = ""
     CMD_Set_Trigger_Coupling                = "C%d:TRIG_COUPLING %s"
@@ -62,8 +68,8 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Set_Trigger_Type                    = "TRIG_SELECT %s, SR, C%d"
 
     def Auto_Horizontal_Scale(self, channel, cycle, grid_limit, grid_position):
-        self.Set_Channel_Voltage_Scale(channel, 1)
-        self.Set_Channel_Voltage_Offset(channel, -4)
+        self.Set_Channel_Voltage_Scale(channel, 5)
+        self.Set_Channel_Voltage_Offset(channel, -20)
         last_measure_1 = self.Instrument.query("PARAMETER_CUSTOM? 1")
         last_measure_2 = self.Instrument.query("PARAMETER_CUSTOM? 2")
         last_measure_3 = self.Instrument.query("PARAMETER_CUSTOM? 3")
@@ -397,16 +403,19 @@ class Tektronix_MSO58(Oscilloscope):
     Model_Name                              = "Tektronix_MSO58"
     CMD_Clear_Sweeps                        = "CLEAR"
     CMD_Get_Channel_Attenuation             = ""#"CH%d:PRObe:SET?"
-    CMD_Get_Measurement_Statistics_Value    = "MEASUrement:MEAS%d:RESUlts:CURRentacq:%s?"
+    CMD_Get_Channel_Range                   = "CH%d:PRObe:FORCEDRange?"
+    CMD_Get_Measurement_Statistics_Value    = "MEASUrement:MEAS%d:RESUlts:ALLAcqs:%s?"
     VAR_Get_Measurement_Statistics_Value    = {"LAST":None, "MEAN":"MEAN", "MIN":"MINimum", "MAX":"MAXimum", "NUM":"POPUlation"}
     CMD_Get_Measurement_Value               = "MEASUrement:MEAS%d:RESUlts:CURRentacq:MEAN?"
+    CMD_Get_Probe_Degauss_State             = "CH%d:PROBE:DEGAUSS:STATE?"
     CMD_Get_Time_Scale                      = "HORIZONTAL:MODE:SCALE?"
     CMD_Get_Trigger_Channel                 = "TRIGGER:A:EDGE:SOURCE?"
+    CMD_Get_Trigger_Slope                   = "TRIGGER:A:EDGE:SLOPE?"
     CMD_Get_Trigger_Type                    = ""
     CMD_Measurement_Clear                   = ""
     CMD_Measurement_Delete                  = 'MEASUREMENT:DELETE "MEAS%d"'
-    CMD_Measurement_Gate_Start              = ""
-    CMD_Measurement_Gate_Stop               = ""
+    CMD_Measurement_Gate_Start              = "MEASUrement:MEAS%d:GATing:STARTtime %.15f"
+    CMD_Measurement_Gate_Stop               = "MEASUrement:MEAS%d:GATing:ENDtime %.15f"
     CMD_Measurement_Setting                 = 'MEASUrement:ADDNew "MEAS%d"'
     CMD_Measurement_Statistics_State        = "MEASUrement:MEAS%d:DISPlaystat:ENABle %d"
     CMD_Print_Screen                        = "SAVE:IMAGE 'temp.png'"
@@ -420,6 +429,8 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Set_Channel_Label                   = "CH%d:LABEL:NAME '%s'"
     CMD_Set_Channel_Label_State             = ""
     CMD_Set_Channel_Noise_Filter            = ""
+    CMD_Set_Channel_Range                   = "CH%d:PRObe:FORCEDRange %d"
+    CMD_Set_Channel_Range_Mode              = "CH%d:PROBECOntrol %s"
     CMD_Set_Channel_Trace_State_Off         = "DISplay:GLObal:CH%d:STATE OFF"
     CMD_Set_Channel_Trace_State_On          = "DISplay:GLObal:CH%d:STATE ON"
     CMD_Set_Channel_Voltage_Offset          = "CH%d:OFFSET %f"
@@ -431,6 +442,7 @@ class Tektronix_MSO58(Oscilloscope):
     VAR_Set_Display_Grid                    = {"Overlay":"OVErlay", "Stacked":"STAcked"}
     CMD_Set_Display_State_Off               = ""
     CMD_Set_Display_State_On                = ""
+    CMD_Set_Probe_Degauss                   = "CH%d:PRObe:DEGAUSS EXECute"
     CMD_Set_Time_Scale                      = "HORIZONTAL:MODE:SCALE %.15f"
     CMD_Set_Trigger_Channel                 = "TRIGGER:A:EDGE:SOURCE CH%d"
     CMD_Set_Trigger_Coupling                = "TRIGGER:A:EDGE:COUPLING %s"
@@ -443,15 +455,241 @@ class Tektronix_MSO58(Oscilloscope):
     VAR_Set_Trigger_Slope                   = {"Fall":"FALL", "Rise":"RISE", "Either":"EITHER"}
     CMD_Set_Trigger_Type                    = "TRIGGER:A:TYPE %s"
 
+    def Auto_Horizontal_Scale(self, channel, cycle, grid_limit, grid_position):
+        self.Set_Channel_Voltage_Scale(channel, 5)
+        self.Set_Channel_Voltage_Position(channel, -4)
+        self.Measurement_Setting(51, measurement = "Mean", source1 = channel, unit1 = "%")
+        self.Measurement_Setting(52, measurement = "Peak to peak", source1 = channel, unit1 = "%")
+        self.Measurement_Setting(53, measurement = "Period", source1 = channel, unit1 = "%")
+
+        #trigger_coupling: {0:"DC", 1:"HFREJ", 2:"LFREJ", 3:"AC", 4:"NOISEREJ"}
+        #trigger_slope: {0:"FALL", 1:"RISE", 2:"EITHER}
+        self.Trigger_Config(trigger_channel = channel, trigger_mode = "AUTO")
+        self.Clear_Sweeps()
+        sleep(3)
+
+        mean_value = float(self.Get_Measurement_Statistics_Value(1, "MEAN")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+        peak_value = float(self.Get_Measurement_Statistics_Value(2, "MAX")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+        #min_value = float(self.Get_Measurement_Statistics_Value(3, "MIN") #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+
+        for decimal in range(-2, 3):
+            for base in 1,2,5:
+                scale = float("%dE%d" % (base, decimal))
+                
+                #print(scale)
+                #grid_limit = 4
+                #grid_position = -2
+                if round(grid_limit * scale, 5) > peak_value:
+
+                    self.Set_Channel_Voltage_Scale(channel, scale)
+                    self.Set_Channel_Voltage_Position(channel, grid_position)
+                    self.Set_Channel_Voltage_Offset(channel, mean_value)
+
+                    self.Instrument.query("*OPC?")
+                    
+                    for decimal in range(-6, 1):
+                        for base in 1,2,5:
+                            time_scale = "%dE%d" % (base, decimal)
+                            #self.Set_Trigger_Mode("STOP")
+                            self.Set_Time_Scale(float(time_scale))
+                            self.Instrument.write("*CLS")
+                            #self.Set_Trigger_Mode("NORMAL")
+                            self.Instrument.query("*OPC?")
+                            #sleep(1)
+                            self.Clear_Sweeps()
+                            sleep(1.5)
+
+                            period_high_str = self.Get_Measurement_Statistics_Value(53, "MAX") #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+                            mean_sweeps_str = self.Get_Measurement_Statistics_Value(51, "NUM") #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+                            period_sweeps_str = self.Get_Measurement_Statistics_Value(53, "NUM") #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+                            
+                        if period_high_str != "UNDEF":
+                            period_high_float = float(period_high_str)
+                            mean_sweeps_float = int(float(mean_sweeps_str))
+                            period_sweeps_float = int(float(period_sweeps_str))
+                            if period_high_float > 0 and period_sweeps_float > mean_sweeps_float << 6:
+                                
+                                for decimal in range(-6, 1):
+                                    for base in 1,2,5:
+                                        time_scale = "%dE%d" % (base, decimal)
+                                        time_limit = float(time_scale) * 10
+                                        if period_high_float*cycle < time_limit and period_high_float*2 < time_limit:
+                                            self.Set_Time_Scale(float(time_scale))
+
+                                            return
+
+                    return
+        return
+
+    def Auto_Horizontal_Scale_Current(self, channel, cycle, grid_limit, grid_position, max_value, min_value):
+        self.Set_Channel_Voltage_Scale(channel, 10)
+        self.Set_Channel_Voltage_Offset(channel, 0)
+        self.Measurement_Setting(51, measurement = "Period", source1 = channel, unit1 = "%")
+        self.Measurement_Statistics_State(channel = 51, state = True)
+        
+        self.Trigger_Config(trigger_channel = channel, trigger_mode = "AUTO")
+        sleep(1)
+        amplitude = max_value - min_value
+        for decimal in range(-2, 3):
+            for base in 1,2,5:
+                scale = float("%dE%d" % (base, decimal))
+                if round(grid_limit * scale, 5) > amplitude:
+                    self.Set_Channel_Voltage_Scale(channel, scale)
+                    self.Set_Channel_Voltage_Position(channel, grid_position)
+                    self.Trigger_Config(trigger_channel = 1, trigger_level = "AUTO")
+                    self.Instrument.query("*OPC?")
+                    
+                    for decimal in range(-6, 1):
+                        for base in 1,2,5:
+                            time_scale = "%dE%d" % (base, decimal)
+                            #self.Set_Trigger_Mode("STOP")
+                            self.Instrument.write("*CLS")
+                            self.Config(time_scale = float(time_scale))
+                            #self.Set_Trigger_Mode("NORMAL")
+                            self.Clear_Sweeps()
+                            
+                            period_num = self.Get_Measurement_Statistics_Value(51, "NUM") #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+                            sleep(0.1)
+                            self.Instrument.query("*OPC?")
+                        if period_num > 0:
+                            period_str = self.Get_Measurement_Statistics_Value(51, "MEAN") #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+                            period_float = float(period_str)
+                            if period_float > 0:
+                                for decimal in range(-14, 1):
+                                    for base in 1,2,5:
+                                        time_limit = "%dE%d" % (base, decimal-1)
+                                        if period_float*cycle < float(time_limit) and period_float*2 < float(time_limit):
+                                            self.Config(time_scale = float(time_limit)/10)
+                                            self.Instrument.query("*OPC?")
+                                            self.Measurement_Delete(51)
+                                            return
+                    self.Instrument.query("*OPC?")
+                    self.Measurement_Delete(51)
+                    return
+        self.Instrument.query("*OPC?")
+        self.Measurement_Delete(51)
+        return
+
+    def Find_Scale(self):
+        bandwidth = []
+        for ch in range(1, 9):
+            bandwidth.append(float(self.Instrument.query("CH%d:BANdwidth?" % (ch))))
+        self.Instrument.write("AUTOSet:ACQuisition:ENAble 0")
+        self.Instrument.write("AUTOSet:HORizontal:ENAble 0")
+        self.Instrument.write("AUTOSet:TRIGger:ENAble 0")
+        self.Instrument.write("AUTOSet:VERTical:ENAble 1")
+        self.Instrument.write("AUTOSet EXECute")
+        self.Instrument.query("*OPC?")
+        for ch in range(1, 9):
+            self.Instrument.write("CH%d:BANdwidth %.f" % (ch, bandwidth[ch-1]))
+        
+        self.Instrument.query("*OPC?")
+
+    def Auto_Vertical_Scale(self, channel, mode = "AC", grid_limit = 1, grid_position = 0, vertical_scale = None):
+
+        last_trigger = self.Get_Trigger_Channel()
+        
+        self.Trigger_Config(trigger_channel = channel, trigger_mode = "AUTO")
+
+        self.Measurement_Setting(51, measurement = "Mean", source1 = channel, unit1 = "%")
+        self.Measurement_Setting(52, measurement = "Peak to peak", source1 = channel, unit1 = "%")
+        self.Measurement_Setting(53, measurement = "Minimum", source1 = channel, unit1 = "%")
+
+        self.Clear_Sweeps()
+        
+        sleep(2)
+        
+        mean_value = float(self.Get_Measurement_Statistics_Value(51, "MEAN")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+        min_value = float(self.Get_Measurement_Statistics_Value(53, "MIN")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+        if mode == "AC":
+            amplitude = float(self.Get_Measurement_Statistics_Value(52, "MEAN")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+        else:
+            amplitude = mean_value
+
+        if vertical_scale == None:
+            for decimal in range(-2, 3):
+                for base in 1,2,5:
+                    scale = float("%dE%d" % (base, decimal))
+                    #print(scale)
+                    if round(grid_limit * scale, 5) > amplitude:
+                        self.Set_Channel_Voltage_Scale(channel, scale)
+                        if mode == "AC":
+                            self.Set_Channel_Voltage_Offset(channel, min_value)
+                            self.Set_Channel_Voltage_Position(channel, grid_position)
+                        else:
+                            self.Set_Channel_Voltage_Offset(channel, 0)
+                            self.Set_Channel_Voltage_Position(channel, grid_position)
+                        self.Clear_Sweeps()
+                        sleep(3)
+                        mean_value = float(self.Get_Measurement_Statistics_Value(51, "MEAN")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+                        min_value = float(self.Get_Measurement_Statistics_Value(53, "MIN")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+                        if mode == "AC":
+                            self.Set_Channel_Voltage_Offset(channel, min_value)
+                            self.Set_Channel_Voltage_Position(channel, grid_position)
+                        else:
+                            self.Set_Channel_Voltage_Offset(channel, 0)
+                            self.Set_Channel_Voltage_Position(channel, grid_position)
+                        self.Measurement_Delete(51)
+                        self.Measurement_Delete(52)
+                        self.Measurement_Delete(53)
+                        return
+        else:
+            pass
+
+        self.Measurement_Delete(51)
+        self.Measurement_Delete(52)
+        self.Measurement_Delete(53)
+        return
+        
+        #self.Instrument.query()
+        mean = 0
+        while mean == 0:
+            mean = self.Get_Measurement_Value(channel, "Mean")
+        maximum = self.Get_Measurement_Value(channel, "Maximum")
+        minimum = self.Get_Measurement_Value(channel, "Minimum")
+
+        sleep(5)
+        self.Trigger_Config( trigger_mode = "STOP")
+        self.Instrument.write("*CLS")
+        self.Trigger_Config(trigger_mode = "AUTO")
+        status = int(self.Instrument.query("INR?"))
+        while status & 0x01 == 0:
+            status = int(self.Instrument.query("INR?"))
+        mean = 0
+        while mean == 0:
+            mean = self.Get_Measurement_Value(channel, "Mean")
+        maximum = self.Get_Measurement_Value(channel, "Maximum")
+        minimum = self.Get_Measurement_Value(channel, "Minimum")
+
+        amplitude = maximum - minimum
+        for decimal in range(-2, 2):
+            for base in 1,2,5:
+                scale = float("%dE%d" % (base, decimal))
+                if round(grid_limit * scale, 5) > amplitude:
+                    self.Set_Channel_Voltage_Scale(channel, scale)
+                    self.Set_Channel_Voltage_Offset(channel, scale * grid_position - mean)
+                    self.Instrument.write("vbs app.Acquisition.Trigger.Edge.FindLevel()")
+                    self.Instrument.write("*CLS")
+                    self.Set_Trigger_Mode("NORMAL")
+                    while status & 0x01 == 0:
+                        status = int(self.Instrument.query("INR?"))
+                    if (self.Get_Measurement_Value(channel, "Maximum") < (grid_limit/2*scale+self.Get_Measurement_Value(channel, "Mean")) and self.Get_Measurement_Value(channel, "Minimum") > (-grid_limit/2*scale+self.Get_Measurement_Value(channel, "Mean"))):
+                        return
+        return
+
+
 class Tektronix_DPO7054C(Oscilloscope):
     Model_Name                              = "Tektronix_DPO7054C"
     CMD_Clear_Sweeps                        = "CLEAR"
     CMD_Get_Channel_Attenuation             = ""#"CH%d:PRObe:SET?"
+    CMD_Get_Channel_Range                   = ""
     CMD_Get_Measurement_Statistics_Value    = "MEASUrement:MEAS%d:%s?"
     VAR_Get_Measurement_Statistics_Value    = {"LAST":None, "MEAN":"MEAN", "MIN":"MINimum", "MAX":"MAXimum", "NUM":"COUNt"}
     CMD_Get_Measurement_Value               = "MEASUrement:IMMed:VALue?"
+    CMD_Get_Probe_Degauss_State             = "CH%d:PROBE:DEGAUSS:STATE?"
     CMD_Get_Time_Scale                      = "HORIZONTAL:MODE:SCALE?"
     CMD_Get_Trigger_Channel                 = "TRIGGER:A:EDGE:SOURCE?"
+    CMD_Get_Trigger_Slope                   = "TRIGGER:A:EDGE:SLOPE?"
     CMD_Get_Trigger_Type                    = ""
     CMD_Measurement_Clear                   = ""
     CMD_Measurement_Delete                  = ""
@@ -470,6 +708,8 @@ class Tektronix_DPO7054C(Oscilloscope):
     CMD_Set_Channel_Label                   = "CH%d:LABEL:NAME '%s'"
     CMD_Set_Channel_Label_State             = ""
     CMD_Set_Channel_Noise_Filter            = ""
+    CMD_Set_Channel_Range                   = ""
+    CMD_Set_Channel_Range_Mode              = ""
     CMD_Set_Channel_Trace_State_Off         = "SELECT:CH%d OFF"
     CMD_Set_Channel_Trace_State_On          = "SELECT:CH%d ON"
     CMD_Set_Channel_Voltage_Offset          = "CH%d:OFFSET %f"
@@ -481,6 +721,7 @@ class Tektronix_DPO7054C(Oscilloscope):
     VAR_Set_Display_Grid                    = {}
     CMD_Set_Display_State_Off               = ""
     CMD_Set_Display_State_On                = ""
+    CMD_Set_Probe_Degauss                   = "CH%d:PRObe:DEGAUSS EXECute"
     CMD_Set_Time_Scale                      = "HORIZONTAL:MODE:SCALE %.15f"
     CMD_Set_Trigger_Channel                 = "TRIGGER:A:EDGE:SOURCE CH%d"
     CMD_Set_Trigger_Coupling                = "TRIGGER:A:EDGE:COUPLING %s"

@@ -1,7 +1,7 @@
 """
  * @File       : Function_Generator_Model.py
- * @Version    : V1.0.0
- * @Date       : April 27, 2022
+ * @Version    : V1.1.0
+ * @Date       : July 01, 2022
  * @Brief      : Child class of Function_Gernerator.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -16,7 +16,7 @@ class AFG31000_Series(Function_Generator):
     CMD_Set_Function        = "SOURce%d:FUNCtion:SHAPe %s"
     VAR_Set_Function        = {"DC":"DC", "SIN":"SINusoid", "SQU":"SQUare", "RAMP":"Ramp", "PULSE":"PULSe"}
     CMD_Set_Impedance       = "OUTPut%d:IMPedance %s"
-    CMD_Set_Offset          = "SOURce%d:VOLTage:LEVel:IMMediate:OFFSet %dV"
+    CMD_Set_Offset          = "SOURce%d:VOLTage:LEVel:IMMediate:OFFSet %fV"
     CMD_Set_Output_State    = "OUTPut%d:STATe %d"
     CMD_Set_Phase           = "SOURce%d:PHASe:ADJust %.2fDEG"
     CMD_Set_Pulse_Duty      = "SOURce%d:PULSe:DCYCle %.1f"
