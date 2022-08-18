@@ -1,10 +1,10 @@
 """
  * @File       : Oscilloscope_Model.py
- * @Version    : V1.1.0
- * @Date       : July 01, 2022
+ * @Version    : V1.1.1
+ * @Date       : Aug 16, 2022
  * @Brief      : Child class of Oscilloscope.
  * @Author     : Rex Wang
- * @Last editor: Rex Wang
+ * @Last editor: Ivan Chen
  * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
@@ -414,10 +414,12 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Get_Trigger_Type                    = ""
     CMD_Measurement_Clear                   = ""
     CMD_Measurement_Delete                  = 'MEASUREMENT:DELETE "MEAS%d"'
+    CMD_Measurement_Mode                    = 'MEASUrement:GATing %s'#NONE|SCREEN|CURSor|LOGic|SEARch
     CMD_Measurement_Gate_Start              = "MEASUrement:MEAS%d:GATing:STARTtime %.15f"
     CMD_Measurement_Gate_Stop               = "MEASUrement:MEAS%d:GATing:ENDtime %.15f"
     CMD_Measurement_Setting                 = 'MEASUrement:ADDNew "MEAS%d"'
     CMD_Measurement_Statistics_State        = "MEASUrement:MEAS%d:DISPlaystat:ENABle %d"
+    CMD_Measurement_Global_State            = "MEASUrement:MEAS%d:GLOBalref %d"
     CMD_Print_Screen                        = "SAVE:IMAGE 'temp.png'"
     CMD_Print_Setting                       = ""
     CMD_Set_Acquire_mode                    = "ACQuire:MODe %s" #{SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
@@ -430,7 +432,7 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Set_Channel_Label_State             = ""
     CMD_Set_Channel_Noise_Filter            = ""
     CMD_Set_Channel_Range                   = "CH%d:PRObe:FORCEDRange %d"
-    CMD_Set_Channel_Range_Mode              = "CH%d:PROBECOntrol %s"
+    CMD_Set_Channel_Range_Mode              = "CH%d:PROBECOntrol %s"#AUTO|MANual
     CMD_Set_Channel_Trace_State_Off         = "DISplay:GLObal:CH%d:STATE OFF"
     CMD_Set_Channel_Trace_State_On          = "DISplay:GLObal:CH%d:STATE ON"
     CMD_Set_Channel_Voltage_Offset          = "CH%d:OFFSET %f"
@@ -454,7 +456,8 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Set_Trigger_Slope                   = "TRIGGER:A:EDGE:SLOPE %s"
     VAR_Set_Trigger_Slope                   = {"Fall":"FALL", "Rise":"RISE", "Either":"EITHER"}
     CMD_Set_Trigger_Type                    = "TRIGGER:A:TYPE %s"
-
+    CMD_Set_Persistence_Type                = "DISplay:PERSistence %s"#{OFF|AUTO|INFPersist|INFInite|VARpersist|CLEAR}
+    
     def Auto_Horizontal_Scale(self, channel, cycle, grid_limit, grid_position):
         self.Set_Channel_Voltage_Scale(channel, 5)
         self.Set_Channel_Voltage_Position(channel, -4)

@@ -1,10 +1,10 @@
 """
  * @File       : DAQ_Model.py
- * @Version    : V1.0.0
- * @Date       : April 27, 2022
+ * @Version    : V1.0.1
+ * @Date       : Aug 16, 2022
  * @Brief      : Child class of DAQ.
  * @Author     : Rex Wang
- * @Last editor: Rex Wang
+ * @Last editor: Ivan Chen
  * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
@@ -15,6 +15,7 @@ class Keysight_DAQ970A(DAQ):
     CMD_Config_VMode    = "CONF:VOLT:%s %.1f, %.6f,(@%d)"
     # CMD_Config_IMode = "CONF:CURR:%s %.6f, %.6f,(@%d)"
     CMD_Config_TMode    = "CONF:TEMP:%s %s, %.6f,(@%d)"
+    CMD_Measure_VNPLC    = "SENS:VOLT:DC:NPLC %d,(@%d)"
     CMD_Measure_Voltage = "MEAS:VOLT:%s? %s, %.6f,(@%d)"
     # CMD_Measure_Current = "MEAS:CURR:%s? %.6f, %.6f,(@%d)"
     CMD_Measure_Temp    = "MEAS:TEMP:%s? %s, MAX,(@%d)"

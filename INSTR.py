@@ -1,10 +1,10 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.1.0
- * @Date       : July 01, 2022
+ * @Version    : V1.1.1
+ * @Date       : Aug 16, 2022
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
- * @Last editor: Rex Wang
+ * @Last editor: Ivan Chen
  * Copyright (C) 2021 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 import pyvisa as visa
@@ -595,9 +595,22 @@ class Oscilloscope():
         self.Resource_Manager = visa.ResourceManager()
         if instrument_address != None:
             self.Instrument = self.Resource_Manager.open_resource(instrument_address)
+            self.Instrument.timeout = 30000
             self.Address = instrument_address
             INSTR_CNT += 1
-
+            
+    def Factory(self):
+        if self.Model_Name == "Tektronix_MSO58":
+            self.Instrument.write("FACTORY")
+            self.Set_Channel_Trace_State(1, "OFF")#self.Instrument.write("DISplay:GLObal:CH1:STATE OFF")
+            self.Set_Display_Grid("Overlay")#self.Instrument.write("DISplay:WAVEView1:VIEWStyle OVERLAY")#{"Overlay", "Stacked"}
+            self.Set_Acquire_mode("HIRes")#self.Instrument.write("ACQuire:MODe HIRes")# {SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
+    
+    def Persistence_Config(self, mode):
+        if self.Model_Name == "Tektronix_MSO58":
+            if self.CMD_Set_Persistence_Type:
+                self.Instrument.write(self.CMD_Set_Persistence_Type %(mode))#{OFF|AUTO|INFPersist|INFInite|VARpersist|CLEAR}
+    
     def Reset(self):
         channel_range = []
         self.Set_Cmd_Header("OFF")
@@ -831,9 +844,10 @@ class Oscilloscope():
                             return int(get_trigger_type_array[index + 1][1])
         elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
             if self.CMD_Get_Trigger_Channel:
+                self.Set_Cmd_Header("OFF")
                 get_trigger_channel = self.Instrument.query(self.CMD_Get_Trigger_Channel)
-                if get_trigger_channel.startswith("CH"):
-                    return int(get_trigger_channel[2])
+                #if get_trigger_channel.startswith("CH"):
+                return int(get_trigger_channel[-2:])#    return int(get_trigger_channel[2])
         return 0
 
     def Get_Trigger_Slope(self):
@@ -861,9 +875,19 @@ class Oscilloscope():
             for index in range(1, 9):
                 self.Measurement_Setting(index, measurement = "None")
 
+    def Measurement_Global_State(self, ch, state):
+        if self.Model_Name == "Tektronix_MSO58":
+            if self.CMD_Measurement_Global_State:
+                self.Instrument.write(self.CMD_Measurement_Global_State %(ch, state))
+    
     def Measurement_Delete(self, index):
         if self.CMD_Measurement_Delete:
             self.Instrument.write(self.CMD_Measurement_Delete % (index))
+
+    def Measurement_Gate_Mode(self, mode):
+        if self.Model_Name == "Tektronix_MSO58":
+            if self.CMD_Measurement_Mode:
+                self.Instrument.write(self.CMD_Measurement_Mode %(mode))
 
     def Measurement_Gate(self, index, gate_start = None, gate_stop = None):
         if self.Model_Name == "Lecroy_HDO4034A":
@@ -1994,6 +2018,7 @@ class DAQ():
         self.Resource_Manager = visa.ResourceManager()
         if instrument_address != None:
             self.Instrument = self.Resource_Manager.open_resource(instrument_address)
+            self.Instrument.timeout = 20000
             INSTR_CNT += 1
 
     def Reset(self):
@@ -2035,6 +2060,16 @@ class DAQ():
             elif self.Model_Name == "Keithley_DAQ6510":
                 return float(self.Measure_Data[self.Channel_List[channel]])
                 
+    def Measure_VNPLC(self, NPLC = None, channel = None):
+        if  self.CMD_Measure_VNPLC:
+            if self.Model_Name == "Keysight_DAQ970A":
+                self.Instrument.write(self.CMD_Measure_VNPLC % (NPLC, channel))
+                if channel != None:
+                    return float(self.Instrument.query('READ?'))
+                else:
+                    return 0
+            elif self.Model_Name == "Keithley_DAQ6510":
+                return float(self.Measure_Data[self.Channel_List[channel]])           
                 
     # def Measure_Current(self,mode, mode_range, mode_resolution, ch):
         # return float(self.Instrument.query(self.CMD_Measure_Current % (mode, mode_range, mode_resolution, ch)))
@@ -2067,6 +2102,7 @@ class DMM():
         self.Resource_Manager = visa.ResourceManager()
         if instrument_address != None:
             self.Instrument = self.Resource_Manager.open_resource(instrument_address)
+            self.Instrument.timeout = 20000
             INSTR_CNT += 1
 
     def Reset(self):
@@ -2092,6 +2128,16 @@ class DMM():
         if  self.CMD_Measure_Voltage:
             return float(self.Instrument.query(self.CMD_Measure_Voltage % (mode)))
 
+    def Measure_VNPLC(self, NPLC):
+        if self.CMD_Measure_VNPLC:
+            self.Instrument.write(self.CMD_Measure_VNPLC % (NPLC))
+            return float(self.Instrument.query('READ?'))
+    
+    def Measure_INPLC(self, NPLC):
+        if self.CMD_Measure_INPLC:
+            self.Instrument.write(self.CMD_Measure_INPLC % (NPLC))
+            return float(self.Instrument.query('READ?'))
+    
     def Measure_Current(self, mode):
         if self.CMD_Measure_Current:
             return float(self.Instrument.query(self.CMD_Measure_Current % (mode)))

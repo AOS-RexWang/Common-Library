@@ -1,6 +1,6 @@
 """
  * @File       : DC_Load_Model.py
- * @Version    : V1.1.0
+ * @Version    : V1.1.1
  * @Date       : July 01, 2022
  * @Brief      : Child class of DC Load.
  * @Author     : Rex Wang
