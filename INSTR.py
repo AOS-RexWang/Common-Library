@@ -1,10 +1,10 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.1.1
- * @Date       : Aug 16, 2022
+ * @Version    : V1.2.0
+ * @Date       : Aug 19, 2022
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
- * @Last editor: Ivan Chen
+ * @Last editor: Rex Wang
  * Copyright (C) 2021 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 import pyvisa as visa
@@ -51,11 +51,15 @@ class DC_Source():
 
     def Config(self, channel = None, voltage_limit = None, voltage = None, current_limit = None, current = None,
                voltage_slew_rate = None, current_slew_rate = None, remote_state = None, series_state = None):
-        if self.Model_Name == "Chroma_62000P_Series" or self.Model_Name == "Ametek_AST200_17AR" or self.Model_Name == "Keithley_2200_Series" or self.Model_Name == "Keithley_2260B_Series":
-            channel = None
 
         if channel != None:
             self.Set_Output_Channel(channel)
+        
+        if self.Model_Name == "Chroma_62000P_Series" or self.Model_Name == "Ametek_AST200_17AR" or self.Model_Name == "Keithley_2200_Series" or self.Model_Name == "Keithley_2260B_Series":
+            channel = None
+
+        if series_state != None:
+            self.Set_Output_Series_State(series_state)
 
         if voltage_limit != None:
             self.Set_Voltage_Limit_State(True, channel)
@@ -80,11 +84,8 @@ class DC_Source():
         if remote_state != None:
             self.Set_Remote_Sense_State(True, channel)
 
-        if series_state != None:
-            self.Set_Output_Series_State(series_state)
-
     def Measure(self, item, channel = None):
-        if self.Model_Name == "Chroma_62000P_Series" or self.Model_Name == "Ametek_AST200_17AR" or self.Model_Name == "Keithley_2200_Series" or self.Model_Name == "Keithley_2260B_Series":
+        if self.Model_Name == "Chroma_62000P_Series" or self.Model_Name == "Ametek_AST200_17AR" or self.Model_Name == "Keithley_2260B_Series":
             channel = None
         if item == "Voltage":
             return self.Measure_Voltage(channel)
@@ -300,32 +301,21 @@ class DC_Load():
         if channel != None:
             self.Set_Channel(channel)
         if mode != None:
-            self.Set_Mode(mode) #mode: {"CCL", "CCH", "CCDL", "CCDH", "CRL", "CRH", "CV"}
+            self.Set_Mode(mode) #mode: {"CCL", "CCM", "CCH", "CCDL", "CCDM", "CCDH", "CRL", "CRM", "CRH", "CV"}
         if current1 != None:
-            if mode == "CCL" or mode == "CCH":
+            if mode == "CCL" or mode == "CCM" or mode == "CCH":
                 self.Set_Static_Current(current1)
-            elif mode == "CRL":
-                if current1 < 0.025:
-                    current1 = 0.025
-                if current1 > 100:
-                    current1 = 100
+            elif mode == "CRL" or mode == "CRM" or mode == "CRH":
                 self.Set_Resistance(current1)
-            elif mode == "CRH":
-                if current1 < 1.25:
-                    current1 = 1.25
-                if current1 > 5000:
-                    current1 = 5000
-                self.Set_Resistance(current1)
-            
         if static_rise_slew_rate != None:
-            if mode == "CCL" or mode == "CCH":
+            if mode == "CCL" or mode == "CCM" or mode == "CCH":
                 self.Set_Static_Current_Slew_Rate("Rise", static_rise_slew_rate)
-            elif mode == "CRL" or mode == "CRH":
+            elif mode == "CRL" or mode == "CRM" or mode == "CRH":
                 self.Set_Resistance_Slew_Rate("Rise", static_rise_slew_rate)
         if static_fall_slew_rate != None:
-            if mode == "CCL" or mode == "CCH":
+            if mode == "CCL" or mode == "CCM" or mode == "CCH":
                 self.Set_Static_Current_Slew_Rate("Fall", static_fall_slew_rate)
-            elif mode == "CRL" or mode == "CRH":
+            elif mode == "CRL" or mode == "CRM" or mode == "CRH":
                 self.Set_Resistance_Slew_Rate("Fall", static_fall_slew_rate)
         if current1 != None and current2 != None:
             self.Set_Dynamic_Current(current1, current2)
@@ -746,6 +736,23 @@ class Oscilloscope():
         if self.CMD_Get_Channel_Range:
             return float(self.Instrument.query(self.CMD_Get_Channel_Range % channel)[:-1])
 
+    def Get_Cursor_Voltage(self, x):
+        self.Set_Cmd_Header("OFF")
+        function = self.Get_Cursor_Function()
+        if function == "WAVE":
+            if x == 1:
+                if self.CMD_Get_Cursor_AVPosition:
+                    return float(self.Instrument.query(self.CMD_Get_Cursor_AVPosition)[:-1])
+            elif x == 2:
+                if self.CMD_Get_Cursor_BVPosition:
+                    return float(self.Instrument.query(self.CMD_Get_Cursor_BVPosition)[:-1])
+        else:
+            return 0
+    def Get_Cursor_Function(self):
+        self.Set_Cmd_Header("OFF")
+        if self.CMD_Get_Cursor_Function:
+            return self.Instrument.query(self.CMD_Get_Cursor_Function)[:-1]
+
     def Get_Measurement_Statistics_Value(self, index, statistic_method): #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
         statistic = self.VAR_Get_Measurement_Statistics_Value.get(statistic_method)
         if statistic == None:
@@ -904,12 +911,14 @@ class Oscilloscope():
             else:
                 self.Instrument.write("MEASUREMENT:GATING None")
             get_time_scale = self.Get_Time_Scale()
+            get_trigger_position = self.Instrument.query("HORizontal:POSition?")
+            get_trigger_position = float(get_trigger_position) / 10
             if gate_start != None:
-                gate_start_time = (gate_start - 5) * get_time_scale
+                gate_start_time = (gate_start - get_trigger_position) * get_time_scale
                 self.Instrument.write(self.CMD_Measurement_Gate_Start % (index, gate_start_time))
             
             if gate_stop != None:
-                gate_stop_time = (gate_stop - 5) * get_time_scale
+                gate_stop_time = (gate_stop - get_trigger_position) * get_time_scale
                 self.Instrument.write(self.CMD_Measurement_Gate_Stop % (index, gate_stop_time))
             
         elif self.Model_Name == "Tektronix_DPO7054C":
@@ -1032,7 +1041,7 @@ class Oscilloscope():
                     #"Rise 20-80%"       : "",
                     "Skew"              : "SKEW",
                     "Width"             : "PWIDTH",
-                    "WidthN"            : "NWIDTTH",
+                    "WidthN"            : "NWIDTH",
                     "Rise slew rate"    : "RISESLEWRATE",
                     "Fall slew rate"    : "FALLSLEWRATE"
                     #"None"              : ""
@@ -1368,6 +1377,46 @@ class Oscilloscope():
                         self.Instrument.write(self.CMD_Set_Cmd_Header % ("OFF"))
                     if self.CMD_Set_Cmd_Verbose:
                         self.Instrument.write(self.CMD_Set_Cmd_Verbose % ("OFF"))
+
+    def Set_Cursor_Function(self, function): #function: {"SCREEN"|"WAVEFORM"|"VBArs"|"HBArs"}
+        if self.CMD_Set_Cursor_Function:
+            self.Instrument.write(self.CMD_Set_Cursor_Function % (function))
+
+    def Set_Cursor_Position(self, x1 = 0, x2 = 0, y1 = 0, y2 = 0):
+        if self.CMD_Set_Cursor_APosition and self.CMD_Set_Cursor_BPosition:
+            self.Set_Cmd_Header("OFF")
+            function = self.Get_Cursor_Function()
+            if function == "WAVE" or function == "VBA":
+                self.Instrument.write(self.CMD_Set_Cursor_APosition % (function, x1))
+                self.Instrument.write(self.CMD_Set_Cursor_BPosition % (function, x2))
+            elif function == "HBA":
+                self.Instrument.write(self.CMD_Set_Cursor_APosition % (function, y1))
+                self.Instrument.write(self.CMD_Set_Cursor_BPosition % (function, y2))
+            elif function == "SCREEN":
+                self.Instrument.write(self.CMD_Set_Cursor_AXPosition % (function, x1))
+                self.Instrument.write(self.CMD_Set_Cursor_BXPosition % (function, x2))
+                self.Instrument.write(self.CMD_Set_Cursor_AYPosition % (function, y1))
+                self.Instrument.write(self.CMD_Set_Cursor_BYPosition % (function, y2))
+
+    def Set_Cursor_Source(self, source1 = None, source2 = None):
+        if self.CMD_Set_Cursor_ASource:
+            self.Set_Cursor_Split_Mode("SAME")
+            self.Instrument.write(self.CMD_Set_Cursor_ASource % (source1))
+            if source2 != None and self.CMD_Set_Cursor_BSource:
+                self.Set_Cursor_Split_Mode("SPLIT")
+                self.Instrument.write(self.CMD_Set_Cursor_BSource % (source2))
+
+    def Set_Cursor_Split_Mode(self, mode): #mode = {"SAME", "SPLIT"}
+        if self.CMD_Set_Cursor_Split_Mode:
+            self.Instrument.write(self.CMD_Set_Cursor_Split_Mode % (mode))
+
+    def Set_Cursor_State(self, state):
+        if state == True:
+            if self.CMD_Set_Cursor_State_ON:
+                self.Instrument.write(self.CMD_Set_Cursor_State_ON)
+        else:
+            if self.CMD_Set_Cursor_State_OFF:
+                self.Instrument.write(self.CMD_Set_Cursor_State_OFF)
 
     def Set_Display_Grid(self, display_grid): #display_grid: {"Overlay", "Stacked"}
         grid = self.VAR_Set_Display_Grid.get(display_grid)
@@ -2112,17 +2161,23 @@ class DMM():
         if self.CMD_Config_VMode:
             if mode_range != "AUTO":
                 mode_range = str(mode_range)
-            self.Instrument.write(self.CMD_Config_VMode % (mode, mode_range, mode_resolution))
+                self.Instrument.write(self.CMD_Config_VMode % (mode, mode_range, mode_resolution))
+            else:
+                self.Instrument.write(self.CMD_Config_VMode_Auto_Range % (mode))
 
     def Config_cur(self, mode, mode_range, mode_resolution):
         if self.CMD_Config_IMode:
-            self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
+            if mode_range != "AUTO":
+                mode_range = str(mode_range)
+                self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
+            else:
+                self.Instrument.write(self.CMD_Config_IMode_Auto_Range % (mode))
 
     def Measure(self, item, mode):
         if item == "Voltage":
-            self.Measure_Voltage(mode)
+            return self.Measure_Voltage(mode)
         elif item == "Current":
-            self.Measure_Current(mode)
+            return self.Measure_Current(mode)
 
     def Measure_Voltage(self, mode):
         if  self.CMD_Measure_Voltage:
@@ -2165,11 +2220,17 @@ class DMM_2():
         if self.CMD_Config_VMode:
             if mode_range != "AUTO":
                 mode_range = str(mode_range)
-            self.Instrument.write(self.CMD_Config_VMode % (mode, mode_range, mode_resolution))
+                self.Instrument.write(self.CMD_Config_VMode % (mode, mode_range, mode_resolution))
+            else:
+                self.Instrument.write(self.CMD_Config_VMode_Auto_Range % (mode))
 
     def Config_cur(self, mode, mode_range, mode_resolution):
         if self.CMD_Config_IMode:
-            self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
+            if mode_range != "AUTO":
+                mode_range = str(mode_range)
+                self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
+            else:
+                self.Instrument.write(self.CMD_Config_IMode_Auto_Range % (mode))
 
     def Measure(self, item, mode):
         if item == "Voltage":
@@ -2180,6 +2241,16 @@ class DMM_2():
     def Measure_Voltage(self, mode):
         if  self.CMD_Measure_Voltage:
             return float(self.Instrument.query(self.CMD_Measure_Voltage % (mode)))
+
+    def Measure_VNPLC(self, NPLC):
+        if self.CMD_Measure_VNPLC:
+            self.Instrument.write(self.CMD_Measure_VNPLC % (NPLC))
+            return float(self.Instrument.query('READ?'))
+    
+    def Measure_INPLC(self, NPLC):
+        if self.CMD_Measure_INPLC:
+            self.Instrument.write(self.CMD_Measure_INPLC % (NPLC))
+            return float(self.Instrument.query('READ?'))
 
     def Measure_Current(self, mode):
         if self.CMD_Measure_Current:

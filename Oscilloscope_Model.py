@@ -1,10 +1,10 @@
 """
  * @File       : Oscilloscope_Model.py
- * @Version    : V1.1.1
- * @Date       : Aug 16, 2022
+ * @Version    : V1.2.0
+ * @Date       : Aug 19, 2022
  * @Brief      : Child class of Oscilloscope.
  * @Author     : Rex Wang
- * @Last editor: Ivan Chen
+ * @Last editor: Rex Wang
  * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
@@ -16,6 +16,9 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Clear_Sweeps                        = "CLEAR_SWEEPS"
     CMD_Get_Channel_Attenuation             = "C%d:ATTENUATION?"
     CMD_Get_Channel_Range                   = ""
+    CMD_Get_Cursor_AVPosition               = ""
+    CMD_Get_Cursor_BVPosition               = ""
+    CMD_Get_Cursor_Function                 = ""
     CMD_Get_Measurement_Statistics_Value    = "PARAMETER_STATISTICS? CUST, P%d"
     VAR_Get_Measurement_Statistics_Value    = {"LAST":"LAST", "MEAN":"AVG", "MIN":"LOW", "MAX":"HIGH", "NUM":"SWEEPS"}
     CMD_Get_Measurement_Value               = "C%d:PARAMETER_VALUE? %s"
@@ -50,6 +53,18 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Set_Channel_Voltage_Scale           = "C%d:VOLT_DIV %.3f"
     CMD_Set_Cmd_Header                      = "COMM_HEADER %s"
     CMD_Set_Cmd_Verbose                     = ""
+    CMD_Set_Cursor_Function                 = ""
+    CMD_Set_Cursor_APosition                = ""
+    CMD_Set_Cursor_ASource                  = ""
+    CMD_Set_Cursor_AXPosition               = ""
+    CMD_Set_Cursor_AYPosition               = ""
+    CMD_Set_Cursor_BPosition                = ""
+    CMD_Set_Cursor_BSource                  = ""
+    CMD_Set_Cursor_BXPosition               = ""
+    CMD_Set_Cursor_BYPosition               = ""
+    CMD_Set_Cursor_Split_Mode               = ""
+    CMD_Set_Cursor_State_OFF                = ""
+    CMD_Set_Cursor_State_ON                 = ""
     CMD_Set_Display_Grid                    = "GRID %s"
     VAR_Set_Display_Grid                    = {"Overlay":"SINGLE", "Stacked":"AUTO"}
     CMD_Set_Display_State_Off               = "DISPLAY OFF"
@@ -265,6 +280,10 @@ class Lecroy_HDO4034A(Oscilloscope):
                     return
         return
 
+    def Find_Scale(self):
+        for channel in range(1,5):
+            self.Instrument.write("vbs app.Acquisition.C%d.FindScale" % (channel))
+
     def Auto_Vertical_Scale(self, channel, mode = "AC", grid_limit = 1, grid_position = 0, vertical_scale = None):
         self.Set_Channel_Voltage_Scale(channel, 10)
         self.Set_Channel_Voltage_Offset(channel, -40)
@@ -404,6 +423,9 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Clear_Sweeps                        = "CLEAR"
     CMD_Get_Channel_Attenuation             = ""#"CH%d:PRObe:SET?"
     CMD_Get_Channel_Range                   = "CH%d:PRObe:FORCEDRange?"
+    CMD_Get_Cursor_AVPosition               = "DISplay:WAVEView1:CURSor:CURSOR:WAVEform:AVPOSition?"
+    CMD_Get_Cursor_BVPosition               = "DISplay:WAVEView1:CURSor:CURSOR:WAVEform:BVPOSition?"
+    CMD_Get_Cursor_Function                 = "DISPLAY:WAVEVIEW1:CURSOR:CURSOR1:FUNCTION?"
     CMD_Get_Measurement_Statistics_Value    = "MEASUrement:MEAS%d:RESUlts:ALLAcqs:%s?"
     VAR_Get_Measurement_Statistics_Value    = {"LAST":None, "MEAN":"MEAN", "MIN":"MINimum", "MAX":"MAXimum", "NUM":"POPUlation"}
     CMD_Get_Measurement_Value               = "MEASUrement:MEAS%d:RESUlts:CURRentacq:MEAN?"
@@ -440,6 +462,18 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Set_Channel_Voltage_Scale           = "CH%d:SCAle %.3f"
     CMD_Set_Cmd_Header                      = "HEADer %s"
     CMD_Set_Cmd_Verbose                     = "VERBose %s"
+    CMD_Set_Cursor_Function                 = "DISPLAY:WAVEVIEW1:CURSOR:CURSOR1:FUNCTION %s"
+    CMD_Set_Cursor_APosition                = "DISplay:WAVEView1:CURSor:CURSOR1:%s:APOSition %.15f"
+    CMD_Set_Cursor_ASource                  = "DISplay:WAVEView1:CURSor:CURSOR1:ASOUrce CH%d"
+    CMD_Set_Cursor_AXPosition               = "DISPLAY:WAVEVIEW1:CURSOR:CURSOR1:%s:AXPOSITION %.15f"
+    CMD_Set_Cursor_AYPosition               = "DISPLAY:WAVEVIEW1:CURSOR:CURSOR1:%s:AYPOSITION %.15f"
+    CMD_Set_Cursor_BPosition                = "DISplay:WAVEView1:CURSor:CURSOR1:%s:BPOSition %.15f"
+    CMD_Set_Cursor_BSource                  = "DISplay:WAVEView1:CURSor:CURSOR1:BSOUrce CH%d"
+    CMD_Set_Cursor_BXPosition               = "DISPLAY:WAVEVIEW1:CURSOR:CURSOR1:%s:BXPOSITION %.15f"
+    CMD_Set_Cursor_BYPosition               = "DISPLAY:WAVEVIEW1:CURSOR:CURSOR1:%s:BYPOSITION %.15f"
+    CMD_Set_Cursor_Split_Mode               = "DISplay:WAVEView1:CURSor:CURSOR1:SPLITMODE %s"
+    CMD_Set_Cursor_State_OFF                = "DISplay:WAVEView1:CURSor:CURSOR1:STATE OFF"
+    CMD_Set_Cursor_State_ON                 = "DISplay:WAVEView1:CURSor:CURSOR1:STATE ON"
     CMD_Set_Display_Grid                    = "DISplay:WAVEView1:VIEWStyle %s"
     VAR_Set_Display_Grid                    = {"Overlay":"OVErlay", "Stacked":"STAcked"}
     CMD_Set_Display_State_Off               = ""
@@ -627,7 +661,7 @@ class Tektronix_MSO58(Oscilloscope):
                         mean_value = float(self.Get_Measurement_Statistics_Value(51, "MEAN")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
                         min_value = float(self.Get_Measurement_Statistics_Value(53, "MIN")) #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
                         if mode == "AC":
-                            self.Set_Channel_Voltage_Offset(channel, min_value)
+                            self.Set_Channel_Voltage_Offset(channel, mean_value)
                             self.Set_Channel_Voltage_Position(channel, grid_position)
                         else:
                             self.Set_Channel_Voltage_Offset(channel, 0)
@@ -686,6 +720,9 @@ class Tektronix_DPO7054C(Oscilloscope):
     CMD_Clear_Sweeps                        = "CLEAR"
     CMD_Get_Channel_Attenuation             = ""#"CH%d:PRObe:SET?"
     CMD_Get_Channel_Range                   = ""
+    CMD_Get_Cursor_AVPosition               = ""
+    CMD_Get_Cursor_BVPosition               = ""
+    CMD_Get_Cursor_Function                 = ""
     CMD_Get_Measurement_Statistics_Value    = "MEASUrement:MEAS%d:%s?"
     VAR_Get_Measurement_Statistics_Value    = {"LAST":None, "MEAN":"MEAN", "MIN":"MINimum", "MAX":"MAXimum", "NUM":"COUNt"}
     CMD_Get_Measurement_Value               = "MEASUrement:IMMed:VALue?"
@@ -720,6 +757,18 @@ class Tektronix_DPO7054C(Oscilloscope):
     CMD_Set_Channel_Voltage_Scale           = "CH%d:SCAle %.3f"
     CMD_Set_Cmd_Header                      = "HEADer %s"
     CMD_Set_Cmd_Verbose                     = "VERBose %s"
+    CMD_Set_Cursor_Function                 = ""
+    CMD_Set_Cursor_APosition                = ""
+    CMD_Set_Cursor_ASource                  = ""
+    CMD_Set_Cursor_AXPosition               = ""
+    CMD_Set_Cursor_AYPosition               = ""
+    CMD_Set_Cursor_BPosition                = ""
+    CMD_Set_Cursor_BSource                  = ""
+    CMD_Set_Cursor_BXPosition               = ""
+    CMD_Set_Cursor_BYPosition               = ""
+    CMD_Set_Cursor_Split_Mode               = ""
+    CMD_Set_Cursor_State_OFF                = ""
+    CMD_Set_Cursor_State_ON                 = ""
     CMD_Set_Display_Grid                    = ""
     VAR_Set_Display_Grid                    = {}
     CMD_Set_Display_State_Off               = ""
