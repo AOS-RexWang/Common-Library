@@ -1,6 +1,6 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.2.0
+ * @Version    : V1.2.1
  * @Date       : Aug 19, 2022
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
@@ -1288,12 +1288,7 @@ class Oscilloscope():
 
     def Set_Channel_Bandwidth_Limit(self, channel, bandwidth): #Unit: MHz
         if self.CMD_Set_Channel_Bandwidth_Limit:
-            if self.Model_Name == "Lecroy_HDO4034A":
-                if bandwidth > 20:
-                    bandwidth = 20
             if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
-                if bandwidth > 350:
-                    bandwidth = 350
                 bandwidth = bandwidth * 1000000
             self.Instrument.write(self.CMD_Set_Channel_Bandwidth_Limit % (channel, bandwidth))
 
