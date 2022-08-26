@@ -1,6 +1,6 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.2.1
+ * @Version    : V1.3.0
  * @Date       : Aug 19, 2022
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
@@ -604,8 +604,11 @@ class Oscilloscope():
     def Reset(self):
         channel_range = []
         self.Set_Cmd_Header("OFF")
-        for channel in range(1, 4): 
-            channel_range.append(self.Get_Channel_Range(channel = channel))
+        for channel in range(1, 4):
+            try:
+                channel_range.append(self.Get_Channel_Range(channel = channel))
+            except:
+                channel_range.append(5)
         self.Instrument.write("*RST")
         
         for channel in range(1, 4):
@@ -2152,7 +2155,7 @@ class DMM():
     def Reset(self):
         self.Instrument.write("*RST")
 
-    def Config_vol(self, mode, mode_range, mode_resolution):
+    def Config_vol(self, mode, mode_range, mode_resolution = 10):
         if self.CMD_Config_VMode:
             if mode_range != "AUTO":
                 mode_range = str(mode_range)
@@ -2160,13 +2163,14 @@ class DMM():
             else:
                 self.Instrument.write(self.CMD_Config_VMode_Auto_Range % (mode))
 
-    def Config_cur(self, mode, mode_range, mode_resolution):
+    def Config_cur(self, mode, mode_range, mode_resolution = 10):
         if self.CMD_Config_IMode:
             if mode_range != "AUTO":
-                mode_range = str(mode_range)
                 self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
             else:
                 self.Instrument.write(self.CMD_Config_IMode_Auto_Range % (mode))
+            if self.Model_Name == "Keysight_34461":
+                self.Set_Current_Terminals(mode = mode, terminals = 10)
 
     def Measure(self, item, mode):
         if item == "Voltage":
@@ -2192,6 +2196,10 @@ class DMM():
         if self.CMD_Measure_Current:
             return float(self.Instrument.query(self.CMD_Measure_Current % (mode)))
 
+    def Set_Current_Terminals(self, mode, terminals):
+        if self.CMD_Set_Current_Terminals:
+            self.Instrument.write("SENSe:CURRent:%s:TERMinals %d" % (mode, terminals))
+
     def Close(self):
         global INSTR_CNT
         self.Instrument.close()
@@ -2206,12 +2214,13 @@ class DMM_2():
         self.Resource_Manager = visa.ResourceManager()
         if instrument_address != None:
             self.Instrument = self.Resource_Manager.open_resource(instrument_address)
+            self.Instrument.timeout = 20000
             INSTR_CNT += 1
 
     def Reset(self):
         self.Instrument.write("*RST")
 
-    def Config_vol(self, mode, mode_range, mode_resolution):
+    def Config_vol(self, mode, mode_range, mode_resolution = 10):
         if self.CMD_Config_VMode:
             if mode_range != "AUTO":
                 mode_range = str(mode_range)
@@ -2219,19 +2228,20 @@ class DMM_2():
             else:
                 self.Instrument.write(self.CMD_Config_VMode_Auto_Range % (mode))
 
-    def Config_cur(self, mode, mode_range, mode_resolution):
+    def Config_cur(self, mode, mode_range, mode_resolution = 10):
         if self.CMD_Config_IMode:
             if mode_range != "AUTO":
-                mode_range = str(mode_range)
                 self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
             else:
                 self.Instrument.write(self.CMD_Config_IMode_Auto_Range % (mode))
+            if self.Model_Name == "Keysight_34461":
+                self.Set_Current_Terminals(mode = mode, terminals = 10)
 
     def Measure(self, item, mode):
         if item == "Voltage":
-            self.Measure_Voltage(mode)
+            return self.Measure_Voltage(mode)
         elif item == "Current":
-            self.Measure_Current(mode)
+            return self.Measure_Current(mode)
 
     def Measure_Voltage(self, mode):
         if  self.CMD_Measure_Voltage:
@@ -2246,10 +2256,14 @@ class DMM_2():
         if self.CMD_Measure_INPLC:
             self.Instrument.write(self.CMD_Measure_INPLC % (NPLC))
             return float(self.Instrument.query('READ?'))
-
+    
     def Measure_Current(self, mode):
         if self.CMD_Measure_Current:
             return float(self.Instrument.query(self.CMD_Measure_Current % (mode)))
+
+    def Set_Current_Terminals(self, mode, terminals):
+        if self.CMD_Set_Current_Terminals:
+            self.Instrument.write("SENSe:CURRent:%s:TERMinals %d" % (mode, terminals))
 
     def Close(self):
         global INSTR_CNT
