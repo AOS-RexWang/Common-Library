@@ -1,6 +1,6 @@
 """
  * @File       : Oscilloscope_Model.py
- * @Version    : V1.2.0
+ * @Version    : V1.2.1
  * @Date       : Aug 19, 2022
  * @Brief      : Child class of Oscilloscope.
  * @Author     : Rex Wang
@@ -719,7 +719,7 @@ class Tektronix_DPO7054C(Oscilloscope):
     Model_Name                              = "Tektronix_DPO7054C"
     CMD_Clear_Sweeps                        = "CLEAR"
     CMD_Get_Channel_Attenuation             = ""#"CH%d:PRObe:SET?"
-    CMD_Get_Channel_Range                   = ""
+    CMD_Get_Channel_Range                   = "CH%d:PRObe:FORCEDRange?"
     CMD_Get_Cursor_AVPosition               = ""
     CMD_Get_Cursor_BVPosition               = ""
     CMD_Get_Cursor_Function                 = ""
@@ -748,8 +748,8 @@ class Tektronix_DPO7054C(Oscilloscope):
     CMD_Set_Channel_Label                   = "CH%d:LABEL:NAME '%s'"
     CMD_Set_Channel_Label_State             = ""
     CMD_Set_Channel_Noise_Filter            = ""
-    CMD_Set_Channel_Range                   = ""
-    CMD_Set_Channel_Range_Mode              = ""
+    CMD_Set_Channel_Range                   = "CH%d:PRObe:FORCEDRange %d"
+    CMD_Set_Channel_Range_Mode              = "CH%d:PROBECOntrol %s"#AUTO|MANual
     CMD_Set_Channel_Trace_State_Off         = "SELECT:CH%d OFF"
     CMD_Set_Channel_Trace_State_On          = "SELECT:CH%d ON"
     CMD_Set_Channel_Voltage_Offset          = "CH%d:OFFSET %f"
