@@ -19,5 +19,5 @@ class Keysight_34461(DMM):
     CMD_Measure_VNPLC              = "SENS:VOLT:DC:NPLC %d"
     CMD_Measure_INPLC              = "SENS:CURR:DC:NPLC %d"
     CMD_Measure_Voltage            = "MEAS:VOLT:%s?"
-    CMD_Measure_Current            = "MEAS:CURR:%s?"
+    CMD_Measure_Current            = "MEAS:CURR:%s? 10"
     CMD_Set_Current_Terminals      = "SENSe:CURRent:%s:TERMinals %d"
