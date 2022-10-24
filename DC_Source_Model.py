@@ -1,7 +1,7 @@
 """
  * @File       : DC_Source_Model.py
- * @Version    : V1.1.0
- * @Date       : July 01, 2022
+ * @Version    : V1.2.0
+ * @Date       : Sep 05, 2022
  * @Brief      : Child class of DC Source.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -12,6 +12,7 @@ from Library.INSTR import DC_Source
 
 class Chroma_62000P_Series(DC_Source):
     Model_Name                       = "Chroma_62000P_Series"
+    CMD_Get_Voltage                  = "SOURce:VOLTage?"
     CMD_Set_Output_Channel           = ""
     CMD_Set_Voltage                  = "SOURce:VOLTage %.3f"
     CMD_Set_Voltage_Limit_State_On   = ""
@@ -37,6 +38,12 @@ class Chroma_62000P_Series(DC_Source):
     CMD_Set_Output_Channel_State_Off = ""
     CMD_Set_Output_Series_State_On   = ""
     CMD_Set_Output_Series_State_Off  = ""
+    CMD_Set_Program_Mode             = "PROGram:Mode %s"
+    CMD_Set_Program_Run_On           = "PROGram:RUN ON"
+    CMD_Set_Program_Run_Off          = "PROGram:RUN OFF"
+    CMD_Set_Program_Step_Start_V     = "PROGram:STEP:STARTV %.3f"
+    CMD_Set_Program_Step_End_V       = "PROGram:STEP:ENDV %.3f"
+    CMD_Set_Program_Step_Time        = "PROGram:STEP:TIME %d, %d, %.2f"
 
 class Keithley_2200_Series(DC_Source):
     Model_Name                       = "Keithley_2200_Series"
@@ -65,6 +72,10 @@ class Keithley_2200_Series(DC_Source):
     CMD_Set_Output_Channel_State_Off = "SOURce:CHANNEL:OUTPUT 0"
     CMD_Set_Output_Series_State_On   = "INSTrument:COMbine:SERies"
     CMD_Set_Output_Series_State_Off  = "INSTrument:COMbine:OFF"
+    CMD_Set_Program_Mode             = ""
+    CMD_Set_Program_Step_Start_V     = ""
+    CMD_Set_Program_Step_End_V       = ""
+    CMD_Set_Program_Step_Time        = ""
 
 class Keysight_E36300_Series(DC_Source):
     Model_Name                       = "Keysight_E36300_Series"
@@ -93,6 +104,10 @@ class Keysight_E36300_Series(DC_Source):
     CMD_Set_Output_Channel_State_Off = ""
     CMD_Set_Output_Series_State_On   = ""
     CMD_Set_Output_Series_State_Off  = ""
+    CMD_Set_Program_Mode             = ""
+    CMD_Set_Program_Step_Start_V     = ""
+    CMD_Set_Program_Step_End_V       = ""
+    CMD_Set_Program_Step_Time        = ""
 
 class Ametek_AST200_17AR(DC_Source):
     Model_Name                       = "Ametek_AST200_17AR"
@@ -121,6 +136,10 @@ class Ametek_AST200_17AR(DC_Source):
     CMD_Set_Output_Channel_State_Off = ""
     CMD_Set_Output_Series_State_On   = ""
     CMD_Set_Output_Series_State_Off  = ""
+    CMD_Set_Program_Mode             = ""
+    CMD_Set_Program_Step_Start_V     = ""
+    CMD_Set_Program_Step_End_V       = ""
+    CMD_Set_Program_Step_Time        = ""
 
 class Keithley_2260B_Series(DC_Source):
     Model_Name                       = "Keithley_2260B_Series"
@@ -149,3 +168,39 @@ class Keithley_2260B_Series(DC_Source):
     CMD_Set_Output_Channel_State_Off = ""
     CMD_Set_Output_Series_State_On   = ""
     CMD_Set_Output_Series_State_Off  = ""
+    CMD_Set_Program_Mode             = ""
+    CMD_Set_Program_Step_Start_V     = ""
+    CMD_Set_Program_Step_End_V       = ""
+    CMD_Set_Program_Step_Time        = ""
+
+class Keysight_N8700_Series(DC_Source):
+    Model_Name                       = "Keysight_N8700_Series"
+    CMD_Set_Output_Channel           = ""
+    CMD_Set_Voltage                  = "VOLTage %.3f"
+    CMD_Set_Voltage_Limit_State_On   = ""
+    CMD_Set_Voltage_Limit_State_Off  = ""
+    CMD_Set_Voltage_Limit            = "VOLTage:PROTection:LEVel %.3f"
+    CMD_Set_Voltage_Slew_Rate        = ""
+    CMD_Set_Current                  = "CURRent %.3f"
+    CMD_Set_Current_Limit_State_On   = "CURRent:PROTection:STATe ON"
+    CMD_Set_Current_Limit_State_Off  = "CURRent:PROTection:STATe OFF"
+    CMD_Set_Current_Limit            = ""
+    CMD_Set_Current_Slew_Rate        = ""
+    CMD_Set_Remote_Sense_On          = ""
+    CMD_Set_Remote_Sense_Off         = ""
+
+    CMD_Measure_Voltage              = "MEASure:VOLTage?"
+    CMD_Measure_Current              = "MEASure:CURRent?"
+    CMD_Measure_Power                = ""
+
+    CMD_Set_Output_State_On          = "OUTPut ON"
+    CMD_Set_Output_State_Off         = "OUTPut OFF"
+    CMD_Get_Output_State             = "OUTPut?"
+    CMD_Set_Output_Channel_State_On  = ""
+    CMD_Set_Output_Channel_State_Off = ""
+    CMD_Set_Output_Series_State_On   = ""
+    CMD_Set_Output_Series_State_Off  = ""
+    CMD_Set_Program_Mode             = ""
+    CMD_Set_Program_Step_Start_V     = ""
+    CMD_Set_Program_Step_End_V       = ""
+    CMD_Set_Program_Step_Time        = ""
