@@ -1,6 +1,6 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.3.0
+ * @Version    : V1.4.0
  * @Date       : Aug 19, 2022
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
@@ -104,6 +104,10 @@ class DC_Source():
 
     def Reset(self):
         self.Instrument.write("*RST")
+
+    def Get_Voltage(self):
+        if self.CMD_Get_Voltage:
+            return float(self.Instrument.query(self.CMD_Get_Voltage))
 
     def Set_Output_Channel(self, channel):
         if self.CMD_Set_Output_Channel:
@@ -262,6 +266,29 @@ class DC_Source():
                 return True
             else:
                 return False
+
+    def Set_Program_Mode(self, mode): #{"LIST", "STEP", "CP"}
+        if self.CMD_Set_Program_Mode:
+            self.Instrument.write(self.CMD_Set_Program_Mode % (mode))
+
+    def Set_Program_Run_State(self, state):
+        if self.CMD_Set_Program_Run_On and self.CMD_Set_Program_Run_Off:
+            if state == True:
+                self.Instrument.write(self.CMD_Set_Program_Run_On)
+            else:
+                self.Instrument.write(self.CMD_Set_Program_Run_Off)
+
+    def Set_Program_Step_Start_V(self, start_v):
+        if self.CMD_Set_Program_Step_Start_V:
+            self.Instrument.write(self.CMD_Set_Program_Step_Start_V % (start_v))
+
+    def Set_Program_Step_End_V(self, end_v):
+        if self.CMD_Set_Program_Step_End_V:
+            self.Instrument.write(self.CMD_Set_Program_Step_End_V % (end_v))
+
+    def Set_Program_Step_Time(self, hour = 0, minute = 0, second = 0):
+        if self.CMD_Set_Program_Step_Time:
+            self.Instrument.write(self.CMD_Set_Program_Step_Time % (hour, minute, second))
 
     def Close(self):
         global INSTR_CNT
@@ -587,17 +614,18 @@ class Oscilloscope():
             self.Instrument = self.Resource_Manager.open_resource(instrument_address)
             self.Instrument.timeout = 30000
             self.Address = instrument_address
+            self.Cursor_Source = 1
             INSTR_CNT += 1
             
     def Factory(self):
-        if self.Model_Name == "Tektronix_MSO58":
+        if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
             self.Instrument.write("FACTORY")
             self.Set_Channel_Trace_State(1, "OFF")#self.Instrument.write("DISplay:GLObal:CH1:STATE OFF")
             self.Set_Display_Grid("Overlay")#self.Instrument.write("DISplay:WAVEView1:VIEWStyle OVERLAY")#{"Overlay", "Stacked"}
             self.Set_Acquire_mode("HIRes")#self.Instrument.write("ACQuire:MODe HIRes")# {SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
     
     def Persistence_Config(self, mode):
-        if self.Model_Name == "Tektronix_MSO58":
+        if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
             if self.CMD_Set_Persistence_Type:
                 self.Instrument.write(self.CMD_Set_Persistence_Type %(mode))#{OFF|AUTO|INFPersist|INFInite|VARpersist|CLEAR}
     
@@ -647,58 +675,58 @@ class Oscilloscope():
         channel_state = [c1_state, c2_state, c3_state, c4_state, c5_state, c6_state, c7_state, c8_state]
         for channel, state in enumerate(channel_state, start = 1):
             if state != None and state != "":
-                if self.Model_Name == "Lecroy_HDO4034A" and channel > 4:
+                if channel > self.Channel_Number:
                     break
                 self.Set_Channel_Trace_State(int(channel), state)
         
         channel_scale = [c1_scale, c2_scale, c3_scale, c4_scale, c5_scale, c6_scale, c7_scale, c8_scale]
         for channel, scale in enumerate(channel_scale, start = 1):
             if scale != None and scale != "":
-                if self.Model_Name == "Lecroy_HDO4034A" and channel > 4:
+                if channel > self.Channel_Number:
                     break
                 self.Set_Channel_Voltage_Scale(int(channel), scale)
 
         channel_coupling = [c1_coupling, c2_coupling, c3_coupling, c4_coupling, c5_coupling, c6_coupling, c7_coupling, c8_coupling]
         for channel, coupling in enumerate(channel_coupling, start = 1):
             if coupling != None and coupling != "":
-                if self.Model_Name == "Lecroy_HDO4034A" and channel > 4:
+                if channel > self.Channel_Number:
                     break
                 self.Set_Channel_Coupling(int(channel), coupling) #channel_coupling: {"AC", "DC", "DC50", "DCREJ", "GND", "IAC", "IDC"}
 
         channel_bandwidth = [c1_bandwidth, c2_bandwidth, c3_bandwidth, c4_bandwidth, c5_bandwidth, c6_bandwidth, c7_bandwidth, c8_bandwidth]
         for channel, bandwidth in enumerate(channel_bandwidth, start = 1):
             if bandwidth != None and bandwidth != "":
-                if self.Model_Name == "Lecroy_HDO4034A" and channel > 4:
+                if channel > self.Channel_Number:
                     break
                 self.Set_Channel_Bandwidth_Limit(int(channel), bandwidth)
         
         channel_filter = [c1_filter, c2_filter, c3_filter, c4_filter, c5_filter, c6_filter, c7_filter, c8_filter]
         for channel, c_filter in enumerate(channel_filter, start = 1):
             if c_filter != None and c_filter != "":
-                if self.Model_Name == "Lecroy_HDO4034A" and channel > 4:
+                if channel > self.Channel_Number:
                     break
                 self.Set_Channel_Noise_Filter(int(channel), c_filter)
         
         channel_offset = [c1_offset, c2_offset, c3_offset, c4_offset, c5_offset, c6_offset, c7_offset, c8_offset]
         for channel, offset in enumerate(channel_offset, start = 1):
             if offset != None and offset != "":
-                if self.Model_Name == "Lecroy_HDO4034A" and channel > 4:
+                if channel > self.Channel_Number:
                     break
-                if self.Model_Name == "Lecroy_HDO4034A":
+                if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                     offset = -offset
                 self.Set_Channel_Voltage_Offset(int(channel), offset)
         
         channel_position = [c1_position, c2_position, c3_position, c4_position, c5_position, c6_position, c7_position, c8_position]
         for channel, position in enumerate(channel_position, start = 1):
             if position != None and position != "":
-                if self.Model_Name == "Lecroy_HDO4034A" and channel > 4:
+                if channel > self.Channel_Number:
                     break
                 self.Set_Channel_Voltage_Position(int(channel), position)
 
         channel_label = [c1_label, c2_label, c3_label, c4_label, c5_label, c6_label, c7_label, c8_label]
         for channel, label in enumerate(channel_label, start = 1):
             if label != None and label != "":
-                if self.Model_Name == "Lecroy_HDO4034A" and channel > 4:
+                if channel > self.Channel_Number:
                     break
                 self.Set_Channel_Label_State(channel, True)
                 self.Set_Channel_Label(int(channel), label)
@@ -707,7 +735,8 @@ class Oscilloscope():
                        trigger_slope = None, trigger_mode = None):
 
         if trigger_channel != None:
-            self.Set_Trigger_Channel(trigger_channel)
+            if trigger_channel <= self.Channel_Number:
+                self.Set_Trigger_Channel(trigger_channel)
 
         if trigger_coupling != None:
             self.Set_Trigger_Coupling(trigger_coupling = trigger_coupling) #trigger_coupling: {"DC", "HFREJ", "LFREJ", "AC", "NOISEREJ"}
@@ -732,57 +761,100 @@ class Oscilloscope():
             self.Instrument.write(self.CMD_Clear_Sweeps)    
 
     def Get_Channel_Attenuation(self, channel):
-        if self.CMD_Get_Channel_Attenuation:
-            return int(self.Instrument.query(self.CMD_Get_Channel_Attenuation % (channel)))
+        self.Set_Cmd_Header("OFF")
+        if self.CMD_Get_Channel_Attenuation and channel <= self.Channel_Number:
+                return int(self.Instrument.query(self.CMD_Get_Channel_Attenuation % (channel)))
 
     def Get_Channel_Range(self, channel):
-        if self.CMD_Get_Channel_Range:
-            return float(self.Instrument.query(self.CMD_Get_Channel_Range % channel)[:-1])
+        self.Set_Cmd_Header("OFF")
+        if self.CMD_Get_Channel_Range and channel <= self.Channel_Number:
+                return float(self.Instrument.query(self.CMD_Get_Channel_Range % channel)[:-1])
 
     def Get_Cursor_Voltage(self, x):
         self.Set_Cmd_Header("OFF")
         function = self.Get_Cursor_Function()
-        if function == "WAVE":
-            if x == 1:
-                if self.CMD_Get_Cursor_AVPosition:
-                    return float(self.Instrument.query(self.CMD_Get_Cursor_AVPosition)[:-1])
-            elif x == 2:
-                if self.CMD_Get_Cursor_BVPosition:
-                    return float(self.Instrument.query(self.CMD_Get_Cursor_BVPosition)[:-1])
-        else:
-            return 0
+        if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
+            if function == "WAVE":
+                if x == 1:
+                    if self.CMD_Get_Cursor_AVPosition:
+                        return float(self.Instrument.query(self.CMD_Get_Cursor_AVPosition)[:-1])
+                elif x == 2:
+                    if self.CMD_Get_Cursor_BVPosition:
+                        return float(self.Instrument.query(self.CMD_Get_Cursor_BVPosition)[:-1])
+            else:
+                return 0
+        elif self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
+            if function == "HREL,ABSDELTA":
+                if x == 1:
+                    return float(self.Instrument.query("C%d:CURSOR_VALUE?" % (self.Cursor_Source))[:-1].split(",")[6])
+                elif x == 2:
+                    return float(self.Instrument.query("C%d:CURSOR_VALUE?" % (self.Cursor_Source))[:-1].split(",")[7])
+            else:
+                return 0
+
     def Get_Cursor_Function(self):
         self.Set_Cmd_Header("OFF")
         if self.CMD_Get_Cursor_Function:
             return self.Instrument.query(self.CMD_Get_Cursor_Function)[:-1]
 
-    def Get_Measurement_Statistics_Value(self, index, statistic_method): #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+    def Get_Measurement_Statistics_Value(self, index, statistic_method = None): #statistic_method: {"LAST", "MEAN", "MIN", "MAX", "NUM"}
+        self.Set_Cmd_Header("OFF")
         statistic = self.VAR_Get_Measurement_Statistics_Value.get(statistic_method)
-        if statistic == None:
-            return 0
-        if self.Model_Name == "Lecroy_HDO4034A":
+
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             if type(index) == int:
                 if index >= 1 and index <= 8:
-                    statistic_list = list(self.Instrument.query(self.CMD_Get_Measurement_Statistics_Value % (index)).replace("\n", "").split(",")[4:])
+                    statistic_data = self.Instrument.query(self.CMD_Get_Measurement_Statistics_Value % (index)).replace("\n", "").split(",")
+                    statistic_list = list(statistic_data[4:])
                     statistic_dict = {}
+                    statistic_dict["Index"] = statistic_data[1]
+                    statistic_dict["MEAS"] = statistic_data[2]
                     for i in range(len(statistic_list) >> 1):
-                        if statistic_list[i * 2 + 1] == "UNDEF":
-                            statistic_list[i * 2 + 1] = 0
-                        statistic_dict[statistic_list[i * 2]] = float(statistic_list[i * 2 + 1])
-                    return statistic_dict[statistic]
+                        if statistic_list[i * 2] in self.VAR_Get_Measurement_Statistics_Value.values():
+                            if statistic_list[i * 2 + 1] == "UNDEF":
+                                statistic_list[i * 2 + 1] = "-"
+                            try:
+                                statistic_dict[statistic_list[i * 2]] = float(statistic_list[i * 2 + 1])
+                            except:
+                                statistic_dict[statistic_list[i * 2]] = statistic_list[i * 2 + 1]
+                    if statistic == None:
+                        return statistic_dict
+                    elif statistic in self.VAR_Get_Measurement_Statistics_Value.values():
+                        return statistic_dict[statistic]
+                    else:
+                        return "Error"
+                        
             else:
                 statistic_list = list(self.Instrument.query(self.CMD_Get_Measurement_Statistics_Value % (index)).split(",")[2:])
                 statistic_dict = {}
                 for i in range(len(statistic_list)):
                     statistic_dict["P%d" % (i + 1)] = statistic_list[i]
-                return statistic_dict[statistic]
-        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
-            if statistic == None:
-                return 0
-            return float(self.Instrument.query(self.CMD_Get_Measurement_Statistics_Value % (index, statistic)))
+                return statistic_dict
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
+            if statistic in self.VAR_Get_Measurement_Statistics_Value.values():
+                if statistic == "LAST":
+                    return float(self.Instrument.query("MEASUrement:MEAS%d:RESUlts:CURRentacq:MEAN?" % (index)))
+                else:
+                    return float(self.Instrument.query(self.CMD_Get_Measurement_Statistics_Value % (index, statistic)))
+            elif statistic == None:
+                statistic_dict = {}
+                for method in ["MEAS", "LAST", "MEAN", "MAX", "MIN", "NUM"]:
+                    statistic = self.VAR_Get_Measurement_Statistics_Value.get(method)
+                    if method == "MEAS":
+                        statistic_value = self.Instrument.query("MEASUrement:MEAS%d:LABel?" % (index))[:-1]
+                        statistic_dict["MEAS"] = statistic_value
+                    elif method == "LAST":
+                        statistic_value = float(self.Instrument.query("MEASUrement:MEAS%d:RESUlts:CURRentacq:MEAN?" % (index)))
+                        statistic_dict["LAST"] = statistic_value
+                    elif method in self.VAR_Get_Measurement_Statistics_Value.keys():
+                        statistic_value = float(self.Instrument.query(self.CMD_Get_Measurement_Statistics_Value % (index, statistic)))
+                        statistic_dict[statistic] = statistic_value
+                statistic_dict["Index"] = "MEAS%d" % index
+                return statistic_dict
 
     def Get_Measurement_Value(self, index, measurement):
-        if self.Model_Name == "Lecroy_HDO4034A":
+        self.Set_Cmd_Header("OFF")
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             measurement_list = {
                 "Amplitude"         : "AMPL",
                 "Base"              : "BASE",
@@ -819,32 +891,34 @@ class Oscilloscope():
                 return float(data_str)
             except:
                 return data_str
-        elif self.Model_Name == "Tektronix_MSO58":
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
             pass
 
     def Get_Probe_Degauss_State(self, channel):
-        if self.CMD_Get_Probe_Degauss_State:
+        self.Set_Cmd_Header("OFF")
+        if self.CMD_Get_Probe_Degauss_State and channel <= self.Channel_Number:
             degauss_state = self.Instrument.query(self.CMD_Get_Probe_Degauss_State % (channel))
             self.Instrument.query("*OPC?")
-            if self.Model_Name == "Lecroy_HDO4034A":
+            if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                 if degauss_state == "0\n":
                     return True
                 else:
                     return False
-            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
                 if degauss_state == "PASS\n":
                     return True
                 else:
                     return False
 
     def Get_Time_Scale(self):
+        self.Set_Cmd_Header("OFF")
         if self.CMD_Get_Time_Scale:
-            self.Set_Cmd_Header("OFF")
-            return float(self.Instrument.query(self.CMD_Get_Time_Scale))
+            return float(self.Instrument.query(self.CMD_Get_Time_Scale)[:-1])
         return 0
 
     def Get_Trigger_Channel(self):
-        if self.Model_Name == "Lecroy_HDO4034A":
+        self.Set_Cmd_Header("OFF")
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             if self.CMD_Get_Trigger_Type:
                 get_trigger_type = self.Instrument.query(self.CMD_Get_Trigger_Type)
                 get_trigger_type_array = get_trigger_type.split(",")
@@ -852,41 +926,46 @@ class Oscilloscope():
                     if item == "SR":
                         if get_trigger_type_array[index + 1].startswith("C"):
                             return int(get_trigger_type_array[index + 1][1])
-        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
             if self.CMD_Get_Trigger_Channel:
-                self.Set_Cmd_Header("OFF")
                 get_trigger_channel = self.Instrument.query(self.CMD_Get_Trigger_Channel)
                 #if get_trigger_channel.startswith("CH"):
-                return int(get_trigger_channel[-2:])#    return int(get_trigger_channel[2])
+                return int(get_trigger_channel[-2:-1])#    return int(get_trigger_channel[2])
         return 0
 
     def Get_Trigger_Slope(self):
+        self.Set_Cmd_Header("OFF")
         if self.CMD_Get_Trigger_Slope:
-            if self.Model_Name == "Lecroy_HDO4034A":
+            if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                 channel = self.Get_Trigger_Channel()
                 slope = self.Instrument.query(self.CMD_Get_Trigger_Slope % (channel))
                 
-            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
                 slope = self.Instrument.query(self.CMD_Get_Trigger_Slope)
             
             if slope == "RIS\n" or slope == "POS\n":
                 return "RISE"
             else:
                 return "FALL"
+
     def Measurement_Clear(self):
-        if self.Model_Name == "Lecroy_HDO4034A":
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             if self.CMD_Measurement_Clear:
                 self.Instrument.write(self.CMD_Measurement_Clear)
-        elif self.Model_Name == "Tektronix_MSO58":
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
+            if self.CMD_Measurement_Clear:
+                self.Instrument.write(self.CMD_Measurement_Clear)
+            """
             meas_list = self.Instrument.query("MEASUrement:LIST?")[:-1].split(",")
             for meas in meas_list:
                 self.Instrument.write('MEASUREMENT:DELETE "%s"' % meas)
+            """
         elif self.Model_Name == "Tektronix_DPO7054C":
             for index in range(1, 9):
                 self.Measurement_Setting(index, measurement = "None")
 
     def Measurement_Global_State(self, ch, state):
-        if self.Model_Name == "Tektronix_MSO58":
+        if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
             if self.CMD_Measurement_Global_State:
                 self.Instrument.write(self.CMD_Measurement_Global_State %(ch, state))
     
@@ -895,19 +974,19 @@ class Oscilloscope():
             self.Instrument.write(self.CMD_Measurement_Delete % (index))
 
     def Measurement_Gate_Mode(self, mode):
-        if self.Model_Name == "Tektronix_MSO58":
+        if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
             if self.CMD_Measurement_Mode:
                 self.Instrument.write(self.CMD_Measurement_Mode %(mode))
 
     def Measurement_Gate(self, index, gate_start = None, gate_stop = None):
-        if self.Model_Name == "Lecroy_HDO4034A":
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             if self.CMD_Measurement_Gate_Start and self.CMD_Measurement_Gate_Stop:
                 if gate_start != None:
                     self.Instrument.write(self.CMD_Measurement_Gate_Start % (index, gate_start))
                 
                 if gate_stop != None:
                     self.Instrument.write(self.CMD_Measurement_Gate_Stop % (index, gate_stop))
-        elif self.Model_Name == "Tektronix_MSO58" :
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" :
             if gate_start != None and gate_stop != None:
                 self.Instrument.write("MEASUrement:MEAS%d:GATing:GLOBal OFF" % (index))
                 self.Instrument.write("MEASUREMENT:MEAS%d:GATING TIMe" % (index))
@@ -1017,7 +1096,59 @@ class Oscilloscope():
                 mnemonic = measurement_list.get(measurement)
                 if mnemonic != None:
                     self.Instrument.write(self.CMD_Measurement_Setting % (index, mnemonic))
-            elif self.Model_Name == "Tektronix_MSO58":
+            elif self.Model_Name == "Lecroy_44MXs_A":
+                if unit1 == "%" or unit1 == "PERC" or unit1 == "PCT":
+                    unit1 = "PCT"
+                else:
+                    unit1 = "V"
+                if unit2 == "%" or unit2 == "PERC" or unit2 == "PCT":
+                    unit2 = "PCT"
+                else:
+                    unit2 = "V"
+                if slope1 != None:
+                    if slope1 == 0:
+                        slope1 = "NEG"
+                    else:
+                        slope1 = "POS"
+                if slope2 != None:
+                    if slope2 == 0:
+                        slope2 = "NEG"
+                    else:
+                        slope2 = "POS"
+                measurement_list = {
+                    "Amplitude"         : "AMPL, C%d" % (source1),
+                    "Base"              : "BASE, C%d" % (source1),
+                    "Maximum"           : "MAX, C%d" % (source1),
+                    "Mean"              : "MEAN, C%d" % (source1),
+                    "Minimum"           : "MIN, C%d" % (source1),
+                    "Peak to peak"      : "PKPK, C%d" % (source1),
+                    "RMS"               : "RMS, C%d" % (source1),
+                    "Std dev"           : "SDEV, C%d" % (source1),
+                    "Top"               : "TOP, C%d" % (source1),
+        
+                    #"Delay"             : "DLY, %s" %(source),
+                    #"Dperiod@level"     : "DPLEV, %s" %(source),
+                    "Delay"             : "DLY, C%d" % (source2),
+                    "Duty cycle"        : "DUTY, C%d" % (source1),
+                    #"Duty cycle@level"  : "DULEV, %s" % (source),
+                    #"Edge@level"        : "EDLEV, %s, %s, %s" % (source, slope, level),
+                    "Fall time"         : "FALL, C%d" % (source1),
+                    "Fall 80-20%"       : "FALL82, C%d" % (source1),
+                    "Frequency"         : "FREQ, C%d" % (source1),
+                    "Period"            : "PER, C%d" % (source1),
+                    "Phase"             : "Phase, C%d" % (source1),
+                    "Rise time"         : "RISE, C%d" % (source1),
+                    "Rise 20-80%"       : "RISE28, C%d" % (source1),
+                    "Skew"              : "SKEW, C%d, %s, %s%s, %s, %s, %s%s, %s, %s" % (source1, slope1, level1, unit1, source2, slope2, level2, unit2, hysteresis1, hysteresis2),
+                    #"Time@level"        : "TLEV, %s, %s, %s, %s" % (source, slope, level, hysteresis),
+                    "Width"             : "WID, C%d" % (source1),
+                    "WidthN"            : "WIDN, C%d" % (source1),
+                    "None"              : "NULL, C%d" % (source1)
+                }
+                mnemonic = measurement_list.get(measurement)
+                if mnemonic != None:
+                    self.Instrument.write(self.CMD_Measurement_Setting % (index, mnemonic))
+            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
                 measurement_list = {
                     "Amplitude"         : "AMPlITUDE",
                     "Base"              : "BASE",
@@ -1064,10 +1195,14 @@ class Oscilloscope():
                     source1_method = "PERCent"
                     if source1_fall_high != None or source1_fall_mid != None or source1_fall_low != None:
                         self.Instrument.write("MEASUrement:MEAS%d:REFLevels1:PERCent:TYPE CUSTom" % (index))
+                    if hysteresis1 != None:
+                        self.Instrument.write("MEASUrement:MEAS%d:REFLevels1:PERCent:HYSTeresis %f" % (index, hysteresis1))
                 else:
                     source1_method = "ABSolute"
                     if source1_fall_high != None or source1_fall_mid != None or source1_fall_low != None:
                         self.Instrument.write("MEASUrement:MEAS%d:REFLevels1:ABSolute:TYPE UNIQUE" % (index))
+                    if hysteresis1 != None:
+                        self.Instrument.write("MEASUrement:MEAS%d:REFLevels1:ABSolute:HYSTeresis %f" % (index, hysteresis1))
                 self.Instrument.write("MEASUREMENT:MEAS%d:REFLevels1:METHOD %s" % (index, source1_method))
                 
                 if unit2 == "%" or unit2 == "PERC" or unit2 == "PCT":
@@ -1229,11 +1364,11 @@ class Oscilloscope():
                 """
             self.Measurement_Gate(index, gate_start, gate_stop)
 
-    def Measurement_Statistics_State(self, channel = None, state = None):
-        if self.Model_Name == "Lecroy_HDO4034A" and state != None:
+    def Measurement_Statistics_State(self, index = None, state = None):
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A" and state != None:
             self.Instrument.write(self.CMD_Measurement_Statistics_State % (state))
-        elif self.Model_Name == "Tektronix_MSO58" and channel != None and state != None:
-            self.Instrument.write(self.CMD_Measurement_Statistics_State % (channel, state))
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" and index != None and state != None:
+            self.Instrument.write(self.CMD_Measurement_Statistics_State % (index, state))
         elif self.Model_Name == "Tektronix_DPO7054C" and state != None:
             if state == True:
                 self.Instrument.write(self.CMD_Measurement_Statistics_State % ("ALL"))
@@ -1241,13 +1376,13 @@ class Oscilloscope():
                 self.Instrument.write(self.CMD_Measurement_Statistics_State % ("OFF"))
 
     def Print_Screen(self, folder, file_name):
-        if self.Model_Name == "Lecroy_HDO4034A":
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             self.Instrument.write(self.CMD_Print_Screen)
             screen_data = self.Instrument.read_raw()
             png_file = open("%s/%s.png" %(folder, file_name), 'wb+')
             png_file.write(screen_data)
             png_file.close()
-        elif self.Model_Name == "Tektronix_MSO58":
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
             self.Instrument.write("SAVE:IMAGE 'temp.png'")
             self.Instrument.query('*OPC?')
             self.Instrument.write("FILESystem:READFile 'temp.png'")
@@ -1271,8 +1406,16 @@ class Oscilloscope():
             self.Instrument.write("FILESYSTEM:DELETE '%s'" % path)
 
     def Print_Setting(self, image_format, background_color, destination, area, port_name):
-        if self.CMD_Print_Setting:
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             self.Instrument.write(self.CMD_Print_Setting % (image_format, background_color, destination, area, port_name))
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
+            self.Instrument.write("SAVEON:IMAGe:FILEFormat %s" % (image_format)) #{PNG|BMP|JPG}
+            if background_color == "WHITE":
+                self.Instrument.write("SAVe:IMAGe:COMPosition INVErted")
+        elif self.Model_Name == "Tektronix_DPO7054C":
+            self.Instrument.write("EXPort:FORMat %s" % (image_format)) #{BMP|JPEG|PCX|PNG|TIFF}
+            if background_color == "WHITE":
+                self.Instrument.write("HARDCopy:PALEtte INKSaver")
 
     def Set_Acquire_mode(self, mode): #mode: {"SAMple", "PEAKdetect", "HIRes", "AVErage", "ENVelope"}
         if self.CMD_Set_Acquire_mode:
@@ -1291,7 +1434,7 @@ class Oscilloscope():
 
     def Set_Channel_Bandwidth_Limit(self, channel, bandwidth): #Unit: MHz
         if self.CMD_Set_Channel_Bandwidth_Limit:
-            if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+            if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
                 bandwidth = bandwidth * 1000000
             self.Instrument.write(self.CMD_Set_Channel_Bandwidth_Limit % (channel, bandwidth))
 
@@ -1340,14 +1483,14 @@ class Oscilloscope():
 #        if self.CMD_Set_Channel_Voltage_Position:
 #            self.Instrument.write(self.CMD_Set_Channel_Voltage_Position % (channel, position))
 
-        if self.Model_Name == "Lecroy_HDO4034A":
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             self.Set_Cmd_Header("OFF")
             current_scale = float(self.Instrument.query("C%d:VOLT_DIV?" % (channel)))
             set_scale = (position) * current_scale
             if position == 0:
                 set_scale = 0
             self.Set_Channel_Voltage_Offset(channel, set_scale)
-        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
             self.Instrument.write(self.CMD_Set_Channel_Voltage_Position % (channel, float(position)))
 
     def Set_Channel_Voltage_Scale(self, channel, div):
@@ -1355,10 +1498,10 @@ class Oscilloscope():
             self.Instrument.write(self.CMD_Set_Channel_Voltage_Scale % (channel, div))
 
     def Set_Cmd_Header(self, mode):
-        if self.Model_Name == "Lecroy_HDO4034A":
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             if self.CMD_Set_Cmd_Header:
                 self.Instrument.write(self.CMD_Set_Cmd_Header % (mode))
-        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
             if self.CMD_Set_Cmd_Header and self.CMD_Set_Cmd_Verbose:
                 if mode == "LONG":
                     if self.CMD_Set_Cmd_Header:
@@ -1378,15 +1521,22 @@ class Oscilloscope():
 
     def Set_Cursor_Function(self, function): #function: {"SCREEN"|"WAVEFORM"|"VBArs"|"HBArs"}
         if self.CMD_Set_Cursor_Function:
-            self.Instrument.write(self.CMD_Set_Cursor_Function % (function))
+            fn = self.VAR_Set_Cursor_Function.get(function)
+            self.Instrument.write(self.CMD_Set_Cursor_Function % (fn))
 
     def Set_Cursor_Position(self, x1 = 0, x2 = 0, y1 = 0, y2 = 0):
         if self.CMD_Set_Cursor_APosition and self.CMD_Set_Cursor_BPosition:
             self.Set_Cmd_Header("OFF")
             function = self.Get_Cursor_Function()
-            if function == "WAVE" or function == "VBA":
-                self.Instrument.write(self.CMD_Set_Cursor_APosition % (function, x1))
-                self.Instrument.write(self.CMD_Set_Cursor_BPosition % (function, x2))
+            if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
+                time_scale = self.Get_Time_Scale()
+                trigger_delay = float(self.Instrument.query("TRIG_DELAY?")[:-1])
+                trigger_position = trigger_delay / time_scale + 5
+                x1 = x1 / time_scale + trigger_position
+                x2 = x2 / time_scale + trigger_position
+            if function == "WAVE" or function == "VBA" or "HREL,ABSDELTA":
+                self.Instrument.write(self.CMD_Set_Cursor_APosition % (self.Cursor_Source, x1))
+                self.Instrument.write(self.CMD_Set_Cursor_BPosition % (self.Cursor_Source, x2))
             elif function == "HBA":
                 self.Instrument.write(self.CMD_Set_Cursor_APosition % (function, y1))
                 self.Instrument.write(self.CMD_Set_Cursor_BPosition % (function, y2))
@@ -1397,12 +1547,15 @@ class Oscilloscope():
                 self.Instrument.write(self.CMD_Set_Cursor_BYPosition % (function, y2))
 
     def Set_Cursor_Source(self, source1 = None, source2 = None):
-        if self.CMD_Set_Cursor_ASource:
-            self.Set_Cursor_Split_Mode("SAME")
-            self.Instrument.write(self.CMD_Set_Cursor_ASource % (source1))
-            if source2 != None and self.CMD_Set_Cursor_BSource:
-                self.Set_Cursor_Split_Mode("SPLIT")
-                self.Instrument.write(self.CMD_Set_Cursor_BSource % (source2))
+        if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
+            if self.CMD_Set_Cursor_ASource:
+                self.Set_Cursor_Split_Mode("SAME")
+                self.Instrument.write(self.CMD_Set_Cursor_ASource % (source1))
+                if source2 != None and self.CMD_Set_Cursor_BSource:
+                    self.Set_Cursor_Split_Mode("SPLIT")
+                    self.Instrument.write(self.CMD_Set_Cursor_BSource % (source2))
+        elif self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
+            self.Cursor_Source = source1
 
     def Set_Cursor_Split_Mode(self, mode): #mode = {"SAME", "SPLIT"}
         if self.CMD_Set_Cursor_Split_Mode:
@@ -1441,9 +1594,9 @@ class Oscilloscope():
     def Set_Trigger_Channel(self, channel):
         trigger_type = "EDGE" #Default: EDGE
         if self.CMD_Set_Trigger_Type:
-            if self.Model_Name == "Lecroy_HDO4034A":
+            if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                 self.Instrument.write(self.CMD_Set_Trigger_Type % (trigger_type, channel))
-            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
                 if self.CMD_Set_Trigger_Channel:
                     self.Instrument.write(self.CMD_Set_Trigger_Channel % (channel))
                 self.Instrument.write(self.CMD_Set_Trigger_Type % (trigger_type))
@@ -1451,24 +1604,24 @@ class Oscilloscope():
     def Set_Trigger_Coupling(self, trigger_coupling): #trigger_coupling: {"DC", "HFREJ", "LFREJ", "AC", "NOISEREJ"}
         coupling = self.VAR_Set_Trigger_Coupling.get(trigger_coupling)
         if self.CMD_Set_Trigger_Coupling and coupling != None:
-            if self.Model_Name == "Lecroy_HDO4034A":
+            if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                 channel = self.Get_Trigger_Channel()
                 self.Instrument.write(self.CMD_Set_Trigger_Coupling % (channel, coupling))
-            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
                 self.Instrument.write(self.CMD_Set_Trigger_Coupling % (coupling))
 
     def Set_Trigger_Delay(self, delay):
         if self.CMD_Set_Trigger_Delay:
-            if self.Model_Name == "Tektronix_MSO58":
+            if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
                 self.Instrument.write("HORizontal:DELay:MODe ON")
             self.Instrument.write(self.CMD_Set_Trigger_Delay % (delay))
 
     def Set_Trigger_Level(self, level):
         if self.CMD_Set_Trigger_Level:
             if level == "AUTO":
-                if self.Model_Name == "Lecroy_HDO4034A":
+                if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                     self.Instrument.write("vbs app.Acquisition.Trigger.Edge.FindLevel()")
-                elif self.Model_Name == "Tektronix_MSO58":
+                elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
                     self.Instrument.write("TRIGger:A SETLEVEL")
             else:
                 channel = self.Get_Trigger_Channel()
@@ -1476,9 +1629,9 @@ class Oscilloscope():
 
     def Set_Trigger_Mode(self, mode):  #{"AUTO", "NORM", "SINGLE", "STOP"}
         if self.CMD_Set_Trigger_Mode:
-            if self.Model_Name == "Lecroy_HDO4034A":
+            if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                 self.Instrument.write(self.CMD_Set_Trigger_Mode % (mode))
-            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
                 if mode == "AUTO" or mode == "NORM":
                     self.Instrument.write("ACQuire:STOPAfter RUNSTOP")
                     self.Instrument.write("ACQUIRE:STATE 1")
@@ -1492,22 +1645,22 @@ class Oscilloscope():
                     self.Instrument.write("ACQUIRE:STATE 0")
 
     def Set_Trigger_Position(self, position):
-        if self.Model_Name == "Lecroy_HDO4034A":
+        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             self.Set_Cmd_Header("OFF")
             current_scale = float(self.Instrument.query("TIME_DIV?"))
             trigger_delay = (position - 50) * current_scale / 10
             self.Set_Trigger_Delay(trigger_delay)
-        if self.Model_Name == "Tektronix_MSO58":
+        if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
             self.Instrument.write("HORizontal:DELay:MODe OFF")
             self.Instrument.write(self.CMD_Set_Trigger_Position % (position))
 
     def Set_Trigger_Slope(self, trigger_slope): #trigger_slope: {"Fall", "Rise", "Either"}
         slope = self.VAR_Set_Trigger_Slope.get(trigger_slope.capitalize())
         if self.CMD_Set_Trigger_Slope and slope:
-            if self.Model_Name == "Lecroy_HDO4034A":
+            if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                 channel = self.Get_Trigger_Channel()
                 self.Instrument.write(self.CMD_Set_Trigger_Slope % (channel, slope))
-            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_DPO7054C":
+            elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
                 self.Instrument.write(self.CMD_Set_Trigger_Slope % (slope))
 
     def Close(self):
@@ -1628,6 +1781,7 @@ class Source_Meter():
     def Set_Idle(self):
         if self.CMD_Set_Idle:
             self.Instrument.write(self.CMD_Set_Idle)
+            self.Instrument.query("*OPC?")
 
     def Set_Measurement_State(self, function, state): #{"VOLTage", "CURRent"}
         if self.CMD_Set_Measurement_On and self.CMD_Set_Measurement_Off:
@@ -1836,6 +1990,7 @@ class Load_Meter():
     def Set_Idle(self):
         if self.CMD_Set_Idle:
             self.Instrument.write(self.CMD_Set_Idle)
+            self.Instrument.query("*OPC?")
 
     def Set_Measurement_State(self, function, state): #{"VOLTage", "CURRent"}
         if self.CMD_Set_Measurement_On and self.CMD_Set_Measurement_Off:
@@ -2001,6 +2156,7 @@ class Enable_Control():
     def Set_Idle(self):
         if self.CMD_Set_Idle:
             self.Instrument.write(self.CMD_Set_Idle)
+            self.Instrument.query("*OPC?")
 
     def Set_Output_State(self, state):
         if self.CMD_Output_State_On and self.CMD_Output_State_Off:
@@ -2093,7 +2249,17 @@ class DAQ():
         if self.Model_Name == "Keithley_DAQ6510":
             self.Instrument.write("INIT")
             self.Instrument.write("*WAI")
+            self.Get_Measure_Data()
+
+    def Get_Measure_Data(self):
+        if self.Model_Name == "Keithley_DAQ6510":
             self.Measure_Data = self.Instrument.query("TRAC:DATA? 1, %d" % (self.Channel_Count))[:-1].split(",")
+
+    def Get_Trigger_Status(self):
+        if self.CMD_Get_Trigger_Status:
+            return self.Instrument.query(self.CMD_Get_Trigger_Status)[:-1]
+        else:
+            return "SUCCESS"
 
     def Measure_Voltage(self, mode = None, mode_range = None, mode_resolution = None, channel = None):
         if  self.CMD_Measure_Voltage:
@@ -2131,9 +2297,46 @@ class DAQ():
             self.Channel_List.update({channel:self.Channel_Count})
             self.Channel_Count += 1
 
+    def Set_Sense_Average(self, state = None, count = None, average_type = None, channel = None): #{REPeat, MOVing}
+        
+        if channel != None:
+            if self.CMD_Set_Sense_Average_State:
+                if state == True:
+                    self.Instrument.write(self.CMD_Set_Sense_Average_State % ("ON", channel))
+                else:
+                    self.Instrument.write(self.CMD_Set_Sense_Average_State % ("OFF", channel))
+
+            if self.CMD_Set_Sense_Average_Count and count != None:
+                self.Instrument.write(self.CMD_Set_Sense_Average_Count % (count, channel))
+
+        if self.CMD_Set_Sense_Average_Type and average_type != None:
+            self.Instrument.write(self.CMD_Set_Sense_Average_Type % (average_type))
+        
+        
+
     def Set_Sense_Range(self, sense_range):
         if self.CMD_Set_Sense_Range:
             self.Instrument.write(self.CMD_Set_Sense_Range % (sense_range))
+    
+    def Set_Sense_VNPLC(self, nplc, channel):
+        if self.CMD_Set_Sense_VNPLC:
+            self.Instrument.write(self.CMD_Set_Sense_VNPLC % (nplc, channel))
+
+    def Set_Trigger_Channel(self, channel):
+        if self.CMD_Set_Trigger_Channel:
+            self.Instrument.write(self.CMD_Set_Trigger_Channel % (channel))
+
+    def Set_Trigger_Limit_Lower(self, limit_lower):
+        if self.CMD_Set_Trigger_Limit_Lower:
+            self.Instrument.write(self.CMD_Set_Trigger_Limit_Lower % (limit_lower))
+
+    def Set_Trigger_Limit_Upper(self, limit_upper):
+        if self.CMD_Set_Trigger_Limit_Upper:
+            self.Instrument.write(self.CMD_Set_Trigger_Limit_Upper % (limit_upper))
+
+    def Set_Trigger_Mode(self, mode): #{"OFF", "UPPer", "LOWer", "WINDow"}
+        if self.CMD_Set_Trigger_Mode:
+            self.Instrument.write(self.CMD_Set_Trigger_Mode % (mode))
 
     def Close(self):
         global INSTR_CNT
@@ -2273,11 +2476,11 @@ class DMM_2():
             self.Resource_Manager.close()
 
 class Function_Generator():
-    CMD_Set_Amplitude       = ""
+    CMD_Set_Voltage_Amplitude = ""
     CMD_Set_Frequency       = ""
     CMD_Set_Function        = ""
     VAR_Set_Function        = {}
-    CMD_Set_Offset          = ""
+    CMD_Set_Voltage_Offset  = ""
     CMD_Set_Output_State    = ""
     CMD_Set_Phase           = ""
     CMD_Set_Pulse_Duty      = ""
@@ -2295,10 +2498,6 @@ class Function_Generator():
     def Reset(self):
         self.Instrument.write("*RST")
 
-    def Set_Amplitude(self, channel, amplitude, unit):
-        if self.CMD_Set_Amplitude:
-            self.Instrument.write(self.CMD_Set_Amplitude % (channel, amplitude, unit))
-
     def Set_Frequency(self, channel, frequency):
         if self.CMD_Set_Frequency:
             self.Instrument.write(self.CMD_Set_Frequency % (channel, frequency))
@@ -2311,10 +2510,6 @@ class Function_Generator():
     def Set_Impedance(self, channel, impedance): #impedance = {<ohms>, "INFinity", "MINimum", "MAXimum"}
         if self.CMD_Set_Impedance:
             self.Instrument.write(self.CMD_Set_Impedance % (channel, impedance))
-
-    def Set_Offset(self, channel, offset):
-        if self.CMD_Set_Offset:
-            self.Instrument.write(self.CMD_Set_Offset % (channel, offset))
 
     def Set_Output_State(self, channel, state):
         if self.CMD_Set_Output_State:
@@ -2329,6 +2524,30 @@ class Function_Generator():
         if self.CMD_Set_Pulse_Duty:
             self.Instrument.write(self.CMD_Set_Pulse_Duty % (channel, duty))
 
+    def Set_Pulse_Hold(self, channel, hold):
+        if self.CMD_Set_Pulse_Hold:
+            self.Instrument.write(self.CMD_Set_Pulse_Hold % (channel, hold))
+
+    def Set_Pulse_Lead_Delay(self, channel, delay):
+        if self.CMD_Set_Pulse_Lead_Delay:
+            self.Instrument.write(self.CMD_Set_Pulse_Lead_Delay % (channel, delay))
+
+    def Set_Pulse_Leading(self, channel, leading):
+        if self.CMD_Set_Pulse_Leading:
+            self.Instrument.write(self.CMD_Set_Pulse_Leading % (channel, leading))
+
+    def Set_Pulse_Period(self, channel, period):
+        if self.CMD_Set_Pulse_Period:
+            self.Instrument.write(self.CMD_Set_Pulse_Period % (channel, period))
+
+    def Set_Pulse_Trailing(self, channel, trailing):
+        if self.CMD_Set_Pulse_Trailing:
+            self.Instrument.write(self.CMD_Set_Pulse_Trailing % (channel, trailing))
+
+    def Set_Pulse_Width(self, channel, width):
+        if self.CMD_Set_Pulse_Width:
+            self.Instrument.write(self.CMD_Set_Pulse_Width % (channel, width))
+
     def Set_Ramp_Symmetry(self, channel, symmetry):
         if self.CMD_Set_Ramp_Symmetry:
             self.Instrument.write(self.CMD_Set_Ramp_Symmetry % (channel, symmetry))
@@ -2336,6 +2555,22 @@ class Function_Generator():
     def Set_Unit(self, channel, unit): #{"VPP", "VRMS"}
         if self.CMD_Set_Unit:
             self.Instrument.write(self.CMD_Set_Unit % (channel, unit))
+
+    def Set_Voltage_Amplitude(self, channel, amplitude, unit):
+        if self.CMD_Set_Voltage_Amplitude:
+            self.Instrument.write(self.CMD_Set_Voltage_Amplitude % (channel, amplitude, unit))
+
+    def Set_Voltage_High(self, channel, high):
+        if self.CMD_Set_Voltage_High:
+            self.Instrument.write(self.CMD_Set_Voltage_High % (channel, high))
+
+    def Set_Voltage_Low(self, channel, low):
+        if self.CMD_Set_Voltage_Low:
+            self.Instrument.write(self.CMD_Set_Voltage_Low % (channel, low))
+
+    def Set_Voltage_Offset(self, channel, offset):
+        if self.CMD_Set_Voltage_Offset:
+            self.Instrument.write(self.CMD_Set_Voltage_Offset % (channel, offset))
 
     def syn(self):
         pass
