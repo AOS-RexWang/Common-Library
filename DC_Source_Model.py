@@ -8,7 +8,7 @@
  * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
-from Library.INSTR import DC_Source
+from Common-Library.INSTR import DC_Source
 
 class Chroma_62000P_Series(DC_Source):
     Model_Name                       = "Chroma_62000P_Series"
@@ -198,6 +198,38 @@ class Keysight_N8700_Series(DC_Source):
     CMD_Get_Output_State             = "OUTPut?"
     CMD_Set_Output_Channel_State_On  = ""
     CMD_Set_Output_Channel_State_Off = ""
+    CMD_Set_Output_Series_State_On   = ""
+    CMD_Set_Output_Series_State_Off  = ""
+    CMD_Set_Program_Mode             = ""
+    CMD_Set_Program_Step_Start_V     = ""
+    CMD_Set_Program_Step_End_V       = ""
+    CMD_Set_Program_Step_Time        = ""
+
+class RohdeSchwarz_HMP_Series(DC_Source):
+    Model_Name                       = "Rohde&Schwarz_HMP_Series"
+    CMD_Set_Output_Channel           = "INST OUT %d"
+    CMD_Set_Voltage                  = "VOLTage %.3f"
+    CMD_Set_Voltage_Limit_State_On   = ""
+    CMD_Set_Voltage_Limit_State_Off  = ""
+    CMD_Set_Voltage_Limit            = "VOLTage:PROTection:LEVel %.3f"
+    CMD_Set_Voltage_Slew_Rate        = ""
+    CMD_Set_Current                  = "CURRent %.3f"
+    CMD_Set_Current_Limit_State_On   = "CURRent:PROTection:STATe ON"
+    CMD_Set_Current_Limit_State_Off  = "CURRent:PROTection:STATe OFF"
+    CMD_Set_Current_Limit            = ""
+    CMD_Set_Current_Slew_Rate        = ""
+    CMD_Set_Remote_Sense_On          = ""
+    CMD_Set_Remote_Sense_Off         = ""
+
+    CMD_Measure_Voltage              = "VOLTage?"
+    CMD_Measure_Current              = "CURRent?"
+    CMD_Measure_Power                = ""
+
+    CMD_Set_Output_State_On          = "OUTPut ON"
+    CMD_Set_Output_State_Off         = "OUTPut OFF"
+    CMD_Get_Output_State             = "OUTPut?"
+    CMD_Set_Output_Channel_State_On  = "OUTPut:SELect ON"
+    CMD_Set_Output_Channel_State_Off = "OUTPut:SELect OFF"
     CMD_Set_Output_Series_State_On   = ""
     CMD_Set_Output_Series_State_Off  = ""
     CMD_Set_Program_Mode             = ""

@@ -1,7 +1,7 @@
 """
  * @File       : Oscilloscope_Model.py
- * @Version    : V1.3.0
- * @Date       : Oct 24, 2022
+ * @Version    : V1.3.1
+ * @Date       : Nov 03, 2022
  * @Brief      : Child class of Oscilloscope.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -30,10 +30,13 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Get_Trigger_Type                    = "TRIG_SELECT?"
     CMD_Measurement_Clear                   = "PARAMETER_CLR"
     CMD_Measurement_Delete                  = "PARAMETER_CUSTOM %d, NULL, C1"
+    CMD_Measurement_Label                   = ""
+    CMD_Measurement_Mode                    = ""
     CMD_Measurement_Gate_Start              = "vbs app.Measure.P%d.GateStart = %.2f"
     CMD_Measurement_Gate_Stop               = "vbs app.Measure.P%d.GateStop = %.2f"
     CMD_Measurement_Setting                 = "PARAMETER_CUSTOM %d, %s"
     CMD_Measurement_Statistics_State        = "vbs app.Measure.StatsOn = %d"
+    CMD_Measurement_Global_State            = ""
     CMD_Print_Screen                        = "SCREEN_DUMP"
     CMD_Print_Setting                       = "HARDCOPY_SETUP DEV, %s, BCKG, %s, DEST, %s, AREA, %s, PORT, %s"
     CMD_Set_Acquire_mode                    = ""
@@ -439,10 +442,13 @@ class Lecroy_44MXs_A(Oscilloscope):
     CMD_Get_Trigger_Type                    = "TRIG_SELECT?"
     CMD_Measurement_Clear                   = "PARAMETER_CLR"
     CMD_Measurement_Delete                  = "PARAMETER_CUSTOM %d, NULL, C1"
+    CMD_Measurement_Label                   = ""
+    CMD_Measurement_Mode                    = ""
     CMD_Measurement_Gate_Start              = "vbs app.Measure.P%d.GateStart = %.2f"
     CMD_Measurement_Gate_Stop               = "vbs app.Measure.P%d.GateStop = %.2f"
     CMD_Measurement_Setting                 = "PARAMETER_CUSTOM %d, %s"
     CMD_Measurement_Statistics_State        = "vbs app.Measure.StatsOn = %d"
+    CMD_Measurement_Global_State            = ""
     CMD_Print_Screen                        = "SCREEN_DUMP"
     CMD_Print_Setting                       = "HARDCOPY_SETUP DEV, %s, BCKG, %s, DEST, %s, AREA, %s, PORT, %s"
     CMD_Set_Acquire_mode                    = ""
@@ -777,6 +783,7 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Get_Trigger_Type                    = ""
     CMD_Measurement_Clear                   = "MEASUrement:DELETEALL"
     CMD_Measurement_Delete                  = 'MEASUREMENT:DELETE "MEAS%d"'
+    CMD_Measurement_Label                   = 'MEASUrement:MEAS%d:LABel "%s"'
     CMD_Measurement_Mode                    = 'MEASUrement:GATing %s'#NONE|SCREEN|CURSor|LOGic|SEARch
     CMD_Measurement_Gate_Start              = "MEASUrement:MEAS%d:GATing:STARTtime %.15f"
     CMD_Measurement_Gate_Stop               = "MEASUrement:MEAS%d:GATing:ENDtime %.15f"
@@ -1075,6 +1082,7 @@ class Tektronix_MSO54(Oscilloscope):
     CMD_Get_Trigger_Type                    = ""
     CMD_Measurement_Clear                   = "MEASUrement:DELETEALL"
     CMD_Measurement_Delete                  = 'MEASUREMENT:DELETE "MEAS%d"'
+    CMD_Measurement_Label                   = 'MEASUrement:MEAS%d:LABel "%s"'
     CMD_Measurement_Mode                    = 'MEASUrement:GATing %s'#NONE|SCREEN|CURSor|LOGic|SEARch
     CMD_Measurement_Gate_Start              = "MEASUrement:MEAS%d:GATing:STARTtime %.15f"
     CMD_Measurement_Gate_Stop               = "MEASUrement:MEAS%d:GATing:ENDtime %.15f"
@@ -1374,10 +1382,13 @@ class Tektronix_DPO7054C(Oscilloscope):
     CMD_Get_Trigger_Type                    = ""
     CMD_Measurement_Clear                   = ""
     CMD_Measurement_Delete                  = ""
+    CMD_Measurement_Label                   = ""
+    CMD_Measurement_Mode                    = ""
     CMD_Measurement_Gate_Start              = "CURSor:VBArs:POSITION1 %.15f"
     CMD_Measurement_Gate_Stop               = "CURSor:VBArs:POSITION2 %.15f"
     CMD_Measurement_Setting                 = 'MEASUrement:MEAS%d:STATE ON'
     CMD_Measurement_Statistics_State        = "MEASUrement:STATIstics:MODe %s"
+    CMD_Measurement_Global_State            = ""
     CMD_Print_Screen                        = "SAVE:IMAGE 'temp.png'"
     CMD_Print_Setting                       = ""
     CMD_Set_Acquire_mode                    = "ACQuire:MODe %s" #{SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
