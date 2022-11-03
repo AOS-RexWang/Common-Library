@@ -1,7 +1,7 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.4.0
- * @Date       : Aug 19, 2022
+ * @Version    : V1.4.1
+ * @Date       : Nov 03, 2022
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -1042,7 +1042,8 @@ class Oscilloscope():
                             source2_fall_mid = None,
                             source2_fall_low = None,
                             gate_start = None,
-                            gate_stop = None):
+                            gate_stop = None,
+                            label = None):
         if self.CMD_Measurement_Setting:
             if self.Model_Name == "Lecroy_HDO4034A":
                 if unit1 == "%" or unit1 == "PERC" or unit1 == "PCT":
@@ -1259,6 +1260,9 @@ class Oscilloscope():
                 if source2_fall_low != None:
                     self.Instrument.write("MEASUrement:MEAS%d:REFLevels2:%s:FALLLow %f" % (index, source2_method, source2_fall_low))
                 self.Measurement_Gate(index, gate_start, gate_stop)
+                
+                if label != None:
+                    self.Instrument.write(self.CMD_Measurement_Label % (index, label))
 
             elif self.Model_Name == "Tektronix_DPO7054C":
                 measurement_list = {
@@ -1365,9 +1369,9 @@ class Oscilloscope():
             self.Measurement_Gate(index, gate_start, gate_stop)
 
     def Measurement_Statistics_State(self, index = None, state = None):
-        if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A" and state != None:
+        if (self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A") and state != None:
             self.Instrument.write(self.CMD_Measurement_Statistics_State % (state))
-        elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" and index != None and state != None:
+        elif (self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54") and index != None and state != None:
             self.Instrument.write(self.CMD_Measurement_Statistics_State % (index, state))
         elif self.Model_Name == "Tektronix_DPO7054C" and state != None:
             if state == True:
