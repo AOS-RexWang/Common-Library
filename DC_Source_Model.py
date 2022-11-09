@@ -1,6 +1,6 @@
 """
  * @File       : DC_Source_Model.py
- * @Version    : V1.2.0
+ * @Version    : V1.3.0
  * @Date       : Sep 05, 2022
  * @Brief      : Child class of DC Source.
  * @Author     : Rex Wang
@@ -8,7 +8,7 @@
  * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
-from Common-Library.INSTR import DC_Source
+from Library.INSTR import DC_Source
 
 class Chroma_62000P_Series(DC_Source):
     Model_Name                       = "Chroma_62000P_Series"
