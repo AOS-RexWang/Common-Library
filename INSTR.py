@@ -1,7 +1,7 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.4.1
- * @Date       : Nov 03, 2022
+ * @Version    : V1.5.0
+ * @Date       : Nov 17, 2022
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -55,9 +55,6 @@ class DC_Source():
         if channel != None:
             self.Set_Output_Channel(channel)
         
-        if self.Model_Name == "Chroma_62000P_Series" or self.Model_Name == "Ametek_AST200_17AR" or self.Model_Name == "Keithley_2200_Series" or self.Model_Name == "Keithley_2260B_Series":
-            channel = None
-
         if series_state != None:
             self.Set_Output_Series_State(series_state)
 
@@ -115,20 +112,19 @@ class DC_Source():
 
     def Set_Voltage(self, voltage, channel = None):
         if self.CMD_Set_Voltage:
-            if channel != None:
+            if self.CMD_Set_Voltage.count("%") == 2:
                 self.Instrument.write(self.CMD_Set_Voltage % (voltage, channel))
-            else:
+            elif self.CMD_Set_Voltage.count("%") == 1:
                 self.Instrument.write(self.CMD_Set_Voltage % (voltage))
 
     def Set_Voltage_Limit_State(self, state, channel = None):
-        if channel != None:
-            if self.CMD_Set_Voltage_Limit_State_On and self.CMD_Set_Voltage_Limit_State_Off:
+        if self.CMD_Set_Voltage_Limit_State_On and self.CMD_Set_Voltage_Limit_State_Off:
+            if self.CMD_Set_Voltage_Limit_State_On.count("%") == 1:
                 if state:
                     self.Instrument.write(self.CMD_Set_Voltage_Limit_State_On % (channel))
                 else:
                     self.Instrument.write(self.CMD_Set_Voltage_Limit_State_Off % (channel))
-        else:
-            if self.CMD_Set_Voltage_Limit_State_On and self.CMD_Set_Voltage_Limit_State_Off:
+            elif self.CMD_Set_Voltage_Limit_State_On.count("%") == 0:
                 if state:
                     self.Instrument.write(self.CMD_Set_Voltage_Limit_State_On)
                 else:
@@ -137,27 +133,26 @@ class DC_Source():
     def Set_Voltage_Limit(self, voltage_limit, channel = None):
         self.Set_Voltage_Limit_State(True)
         if self.CMD_Set_Voltage_Limit:
-            if channel != None:
+            if self.CMD_Set_Voltage_Limit.count("%") == 2:
                 self.Instrument.write(self.CMD_Set_Voltage_Limit % (voltage_limit, channel))
-            else:
+            elif self.CMD_Set_Voltage_Limit.count("%") == 1:
                 self.Instrument.write(self.CMD_Set_Voltage_Limit % (voltage_limit))
 
     def Set_Current(self, current, channel = None):
         if self.CMD_Set_Current:
-            if channel != None:
+            if self.CMD_Set_Current.count("%") == 2:
                 self.Instrument.write(self.CMD_Set_Current % (current, channel))
-            else:
+            elif self.CMD_Set_Current.count("%") == 1:
                 self.Instrument.write(self.CMD_Set_Current % (current))
 
     def Set_Current_Limit_State(self, state, channel = None):
-        if channel != None:
-            if self.CMD_Set_Current_Limit_State_On and self.CMD_Set_Current_Limit_State_Off:
+        if self.CMD_Set_Current_Limit_State_On and self.CMD_Set_Current_Limit_State_Off:
+            if self.CMD_Set_Current_Limit_State_On.count("%") == 1:
                 if state:
                     self.Instrument.write(self.CMD_Set_Current_Limit_State_On % (channel))
                 else:
                     self.Instrument.write(self.CMD_Set_Current_Limit_State_Off % (channel))
-        else:
-            if self.CMD_Set_Current_Limit_State_On and self.CMD_Set_Current_Limit_State_Off:
+            elif self.CMD_Set_Current_Limit_State_On.count("%") == 0:
                 if state:
                     self.Instrument.write(self.CMD_Set_Current_Limit_State_On)
                 else:
@@ -165,34 +160,33 @@ class DC_Source():
 
     def Set_Current_Limit(self, current_limit, channel = None):
         if self.CMD_Set_Current_Limit:
-            if channel != None:
+            if self.CMD_Set_Current_Limit.count("%") == 2:
                 self.Instrument.write(self.CMD_Set_Current_Limit % (current_limit, channel))
-            else:
+            elif self.CMD_Set_Current_Limit.count("%") == 1:
                 self.Instrument.write(self.CMD_Set_Current_Limit % (current_limit))
 
     def Set_Voltage_Slew_Rate(self, slew_rate, channel = None):
         if self.CMD_Set_Voltage_Slew_Rate:
-            if channel != None:
+            if self.CMD_Set_Voltage_Slew_Rate.count("%") == 2:
                 self.Instrument.write(self.CMD_Set_Voltage_Slew_Rate % (slew_rate, channel))
-            else:
+            elif self.CMD_Set_Voltage_Slew_Rate.count("%") == 1:
                 self.Instrument.write(self.CMD_Set_Voltage_Slew_Rate % (slew_rate))
 
     def Set_Current_Slew_Rate(self, slew_rate, channel = None):
         if self.CMD_Set_Current_Slew_Rate:
-            if channel != None:
+            if self.CMD_Set_Current_Slew_Rate.count("%") == 2:
                 self.Instrument.write(self.CMD_Set_Current_Slew_Rate % (slew_rate, channel))
-            else:
+            elif self.CMD_Set_Current_Slew_Rate.count("%") == 1:
                 self.Instrument.write(self.CMD_Set_Current_Slew_Rate % (slew_rate))
 
     def Set_Remote_Sense_State(self, state, channel = None):
-        if channel != None:
-            if self.CMD_Set_Remote_Sense_On and self.CMD_Set_Remote_Sense_Off:
+        if self.CMD_Set_Remote_Sense_On and self.CMD_Set_Remote_Sense_Off:
+            if self.CMD_Set_Remote_Sense_On.count("%") == 1:
                 if state:
                     self.Instrument.write(self.CMD_Set_Remote_Sense_On % (channel))
                 else:
                     self.Instrument.write(self.CMD_Set_Remote_Sense_Off % (channel))
-        else:
-            if self.CMD_Set_Remote_Sense_On and self.CMD_Set_Remote_Sense_Off:
+            elif self.CMD_Set_Remote_Sense_On.count("%") == 0:
                 if state:
                     self.Instrument.write(self.CMD_Set_Remote_Sense_On)
                 else:
@@ -200,39 +194,39 @@ class DC_Source():
 
     def Measure_Voltage(self, channel = None):
         if self.CMD_Measure_Voltage:
-            if channel != None:
+            if self.CMD_Measure_Voltage.count("%") == 1:
                 return float(self.Instrument.query(self.CMD_Measure_Voltage % (channel)))
-            else:
+            elif self.CMD_Measure_Voltage.count("%") == 0:
                 return float(self.Instrument.query(self.CMD_Measure_Voltage))
         else:
             return 0
 
     def Measure_Current(self, channel = None):
         if self.CMD_Measure_Current:
-            if channel != None:
+            if self.CMD_Measure_Current.count("%") == 1:
                 return float(self.Instrument.query(self.CMD_Measure_Current % (channel)))
-            else:
+            elif self.CMD_Measure_Current.count("%") == 0:
                 return float(self.Instrument.query(self.CMD_Measure_Current))
         else:
             return 0
 
     def Measure_Power(self, channel = None):
         if self.CMD_Measure_Power:
-            if channel != None:
+            if self.CMD_Measure_Power.count("%") == 1:
                 return float(self.Instrument.query(self.CMD_Measure_Power % (channel)))
-            else:
+            elif self.CMD_Measure_Power.count("%") == 0:
                 return float(self.Instrument.query(self.CMD_Measure_Power))
         else:
             return 0
 
     def Set_Output_State(self, state, channel = None):
         if self.CMD_Set_Output_State_On and self.CMD_Set_Output_State_Off:
-            if channel != None:
+            if self.CMD_Set_Output_State_On.count("%") == 1:
                 if state:
                     self.Instrument.write(self.CMD_Set_Output_State_On % (channel))
                 else:
                     self.Instrument.write(self.CMD_Set_Output_State_Off % (channel))
-            else:
+            elif self.CMD_Set_Output_State_On.count("%") == 0:
                 if state:
                     self.Instrument.write(self.CMD_Set_Output_State_On)
                 else:
@@ -258,9 +252,9 @@ class DC_Source():
 
     def Get_Output_State(self, channel = None):
         if self.CMD_Get_Output_State:
-            if channel != None:
+            if self.CMD_Get_Output_State.count("%") == 1:
                 state = self.Instrument.query(self.CMD_Get_Output_State % channel)
-            else:
+            elif self.CMD_Get_Output_State.count("%") == 0:
                 state = self.Instrument.query(self.CMD_Get_Output_State)
             if state == "ON" or state == "1\n":
                 return True
@@ -615,6 +609,7 @@ class Oscilloscope():
             self.Instrument.timeout = 30000
             self.Address = instrument_address
             self.Cursor_Source = 1
+            self.position_offset = [0] * self.Channel_Number
             INSTR_CNT += 1
             
     def Factory(self):
@@ -707,21 +702,19 @@ class Oscilloscope():
                     break
                 self.Set_Channel_Noise_Filter(int(channel), c_filter)
         
-        channel_offset = [c1_offset, c2_offset, c3_offset, c4_offset, c5_offset, c6_offset, c7_offset, c8_offset]
-        for channel, offset in enumerate(channel_offset, start = 1):
-            if offset != None and offset != "":
-                if channel > self.Channel_Number:
-                    break
-                if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
-                    offset = -offset
-                self.Set_Channel_Voltage_Offset(int(channel), offset)
-        
         channel_position = [c1_position, c2_position, c3_position, c4_position, c5_position, c6_position, c7_position, c8_position]
         for channel, position in enumerate(channel_position, start = 1):
             if position != None and position != "":
                 if channel > self.Channel_Number:
                     break
                 self.Set_Channel_Voltage_Position(int(channel), position)
+
+        channel_offset = [c1_offset, c2_offset, c3_offset, c4_offset, c5_offset, c6_offset, c7_offset, c8_offset]
+        for channel, offset in enumerate(channel_offset, start = 1):
+            if offset != None and offset != "":
+                if channel > self.Channel_Number:
+                    break
+                self.Set_Channel_Voltage_Offset(int(channel), offset + self.position_offset[channel - 1])
 
         channel_label = [c1_label, c2_label, c3_label, c4_label, c5_label, c6_label, c7_label, c8_label]
         for channel, label in enumerate(channel_label, start = 1):
@@ -769,6 +762,11 @@ class Oscilloscope():
         self.Set_Cmd_Header("OFF")
         if self.CMD_Get_Channel_Range and channel <= self.Channel_Number:
                 return float(self.Instrument.query(self.CMD_Get_Channel_Range % channel)[:-1])
+
+    def Get_Channel_Voltage_Offset(self, channel):
+        self.Set_Cmd_Header("OFF")
+        if self.CMD_Get_Channel_Voltage_Offset:
+            return float(self.Instrument.query(self.CMD_Get_Channel_Voltage_Offset % channel)[:-1])
 
     def Get_Cursor_Voltage(self, x):
         self.Set_Cmd_Header("OFF")
@@ -1422,6 +1420,10 @@ class Oscilloscope():
                 self.Instrument.write("HARDCopy:PALEtte INKSaver")
 
     def Set_Acquire_mode(self, mode): #mode: {"SAMple", "PEAKdetect", "HIRes", "AVErage", "ENVelope"}
+        if mode == "ENVelope":
+            #time = 0.5, 1, 2, 5, 10, 20, "infinite"
+            #color = {"ANALOG", "COLOR_GRADED"}
+            self.Set_Persistence_Config(state = True, saturation = 0, time = "infinite", color = "ANALOG")
         if self.CMD_Set_Acquire_mode:
             self.Instrument.write(self.CMD_Set_Acquire_mode % (mode))
 
@@ -1481,6 +1483,9 @@ class Oscilloscope():
 
     def Set_Channel_Voltage_Offset(self, channel, offset):
         if self.CMD_Set_Channel_Voltage_Offset:
+            if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
+                offset = -offset
+                offset += self.position_offset[channel - 1]
             self.Instrument.write(self.CMD_Set_Channel_Voltage_Offset % (channel, offset))
 
     def Set_Channel_Voltage_Position(self, channel, position):
@@ -1493,6 +1498,7 @@ class Oscilloscope():
             set_scale = (position) * current_scale
             if position == 0:
                 set_scale = 0
+            self.position_offset[channel - 1] = set_scale
             self.Set_Channel_Voltage_Offset(channel, set_scale)
         elif self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
             self.Instrument.write(self.CMD_Set_Channel_Voltage_Position % (channel, float(position)))
@@ -1584,6 +1590,25 @@ class Oscilloscope():
                 self.Instrument.write(self.CMD_Set_Display_State_On)
             else:
                 self.Instrument.write(self.CMD_Set_Display_State_Off)
+
+    def Set_Persistence_Config(self, state = None, saturation = None, time = None, color = None): #color = {"ANALOG", "COLOR_GRADED"}
+        if self.CMD_Set_Persistence_On and self.CMD_Set_Persistence_Off:
+            if state:
+                self.Instrument.write(self.CMD_Set_Persistence_On)
+            else:
+                self.Instrument.write(self.CMD_Set_Persistence_Off)
+
+        if self.CMD_Set_Persistence_Saturation:
+            if saturation != None:
+                self.Instrument.write(self.CMD_Set_Persistence_Saturation % (saturation))
+        
+        if self.CMD_Set_Persistence_Time:
+            if time != None:
+                self.Instrument.write(self.CMD_Set_Persistence_Time % (str(time)))
+        
+        if self.CMD_Set_Persistence_Color:
+            if color != None:
+                self.Instrument.write(self.CMD_Set_Persistence_Color % (color))
 
     def Set_Probe_Degauss(self, channel):
         if self.CMD_Set_Probe_Degauss:
