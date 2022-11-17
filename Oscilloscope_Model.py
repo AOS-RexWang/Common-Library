@@ -1,6 +1,6 @@
 """
  * @File       : Oscilloscope_Model.py
- * @Version    : V1.3.1
+ * @Version    : V1.3.2
  * @Date       : Nov 03, 2022
  * @Brief      : Child class of Oscilloscope.
  * @Author     : Rex Wang
@@ -17,6 +17,7 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Clear_Sweeps                        = "CLEAR_SWEEPS"
     CMD_Get_Channel_Attenuation             = "C%d:ATTENUATION?"
     CMD_Get_Channel_Range                   = ""
+    CMD_Get_Channel_Voltage_Offset          = "C%d:OFFSET?"
     CMD_Get_Cursor_AVPosition               = ""
     CMD_Get_Cursor_BVPosition               = ""
     CMD_Get_Cursor_Function                 = "CURSORS?"
@@ -74,6 +75,11 @@ class Lecroy_HDO4034A(Oscilloscope):
     VAR_Set_Display_Grid                    = {"Overlay":"SINGLE", "Stacked":"AUTO"}
     CMD_Set_Display_State_Off               = "DISPLAY OFF"
     CMD_Set_Display_State_On                = "DISPLAY ON"
+    CMD_Set_Persistence_Color               = "PERSIST_COLOR %s"
+    CMD_Set_Persistence_Off                 = "PERSIST OFF"
+    CMD_Set_Persistence_On                  = "PERSIST ON"
+    CMD_Set_Persistence_Saturation          = "PERSIST_SAT %d"
+    CMD_Set_Persistence_Time                = "PERSIST_SETUP %s"
     CMD_Set_Probe_Degauss                   = ""
     CMD_Set_Time_Scale                      = "TIME_DIV %.15f"
     CMD_Set_Trigger_Channel                 = ""
@@ -486,6 +492,11 @@ class Lecroy_44MXs_A(Oscilloscope):
     VAR_Set_Display_Grid                    = {"Overlay":"SINGLE", "Stacked":"AUTO"}
     CMD_Set_Display_State_Off               = "DISPLAY OFF"
     CMD_Set_Display_State_On                = "DISPLAY ON"
+    CMD_Set_Persistence_Color               = "PERSIST_COLOR %s"
+    CMD_Set_Persistence_Off                 = "PERSIST OFF"
+    CMD_Set_Persistence_On                  = "PERSIST ON"
+    CMD_Set_Persistence_Saturation          = "PERSIST_SAT %d"
+    CMD_Set_Persistence_Time                = "PERSIST_SETUP %s"
     CMD_Set_Probe_Degauss                   = ""
     CMD_Set_Time_Scale                      = "TIME_DIV %.15f"
     CMD_Set_Trigger_Channel                 = ""
@@ -827,6 +838,11 @@ class Tektronix_MSO58(Oscilloscope):
     VAR_Set_Display_Grid                    = {"Overlay":"OVErlay", "Stacked":"STAcked"}
     CMD_Set_Display_State_Off               = ""
     CMD_Set_Display_State_On                = ""
+    CMD_Set_Persistence_Color               = ""
+    CMD_Set_Persistence_Off                 = ""
+    CMD_Set_Persistence_On                  = ""
+    CMD_Set_Persistence_Saturation          = ""
+    CMD_Set_Persistence_Time                = ""
     CMD_Set_Probe_Degauss                   = "CH%d:PRObe:DEGAUSS EXECute"
     CMD_Set_Time_Scale                      = "HORIZONTAL:MODE:SCALE %.15f"
     CMD_Set_Trigger_Channel                 = "TRIGGER:A:EDGE:SOURCE CH%d"
@@ -1126,6 +1142,11 @@ class Tektronix_MSO54(Oscilloscope):
     VAR_Set_Display_Grid                    = {"Overlay":"OVErlay", "Stacked":"STAcked"}
     CMD_Set_Display_State_Off               = ""
     CMD_Set_Display_State_On                = ""
+    CMD_Set_Persistence_Color               = ""
+    CMD_Set_Persistence_Off                 = ""
+    CMD_Set_Persistence_On                  = ""
+    CMD_Set_Persistence_Saturation          = ""
+    CMD_Set_Persistence_Time                = ""
     CMD_Set_Probe_Degauss                   = "CH%d:PRObe:DEGAUSS EXECute"
     CMD_Set_Time_Scale                      = "HORIZONTAL:MODE:SCALE %.15f"
     CMD_Set_Trigger_Channel                 = "TRIGGER:A:EDGE:SOURCE CH%d"
@@ -1425,6 +1446,11 @@ class Tektronix_DPO7054C(Oscilloscope):
     VAR_Set_Display_Grid                    = {}
     CMD_Set_Display_State_Off               = ""
     CMD_Set_Display_State_On                = ""
+    CMD_Set_Persistence_Color               = ""
+    CMD_Set_Persistence_Off                 = ""
+    CMD_Set_Persistence_On                  = ""
+    CMD_Set_Persistence_Saturation          = ""
+    CMD_Set_Persistence_Time                = ""
     CMD_Set_Probe_Degauss                   = "CH%d:PRObe:DEGAUSS EXECute"
     CMD_Set_Time_Scale                      = "HORIZONTAL:MODE:SCALE %.15f"
     CMD_Set_Trigger_Channel                 = "TRIGGER:A:EDGE:SOURCE CH%d"
