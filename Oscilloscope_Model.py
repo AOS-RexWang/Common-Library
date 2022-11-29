@@ -1,7 +1,7 @@
 """
  * @File       : Oscilloscope_Model.py
- * @Version    : V1.3.2
- * @Date       : Nov 03, 2022
+ * @Version    : V1.4.0
+ * @Date       : Nov 29, 2022
  * @Brief      : Child class of Oscilloscope.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -18,6 +18,7 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Get_Channel_Attenuation             = "C%d:ATTENUATION?"
     CMD_Get_Channel_Range                   = ""
     CMD_Get_Channel_Voltage_Offset          = "C%d:OFFSET?"
+    CMD_Get_Channel_Voltage_Scale           = "C%d:VOLT_DIV?"
     CMD_Get_Cursor_AVPosition               = ""
     CMD_Get_Cursor_BVPosition               = ""
     CMD_Get_Cursor_Function                 = "CURSORS?"
@@ -59,15 +60,15 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Set_Cmd_Header                      = "COMM_HEADER %s"
     CMD_Set_Cmd_Verbose                     = ""
     CMD_Set_Cursor_Function                 = "CURSORS %s"
-    VAR_Set_Cursor_Function                 = {"SCREEN":"BREL", "WAVEFORM":"HREL", "VBArs":"", "HBArs":"VREL"}
+    VAR_Set_Cursor_Function                 = {"SCREEN":"BREL", "WAVEFORM":"HREL", "VBArs":"HREL", "HBArs":"VREL"}
     CMD_Set_Cursor_APosition                = "C%d:CRST HREF, %fDIV"
     CMD_Set_Cursor_ASource                  = ""
     CMD_Set_Cursor_AXPosition               = ""
-    CMD_Set_Cursor_AYPosition               = ""
+    CMD_Set_Cursor_AYPosition               = "C%d:CRST VREF, %fDIV"
     CMD_Set_Cursor_BPosition                = "C%d:CRST HDIF, %fDIV"
     CMD_Set_Cursor_BSource                  = ""
     CMD_Set_Cursor_BXPosition               = ""
-    CMD_Set_Cursor_BYPosition               = ""
+    CMD_Set_Cursor_BYPosition               = "C%d:CRST VDIF, %fDIV"
     CMD_Set_Cursor_Split_Mode               = ""
     CMD_Set_Cursor_State_OFF                = ""
     CMD_Set_Cursor_State_ON                 = ""
@@ -435,6 +436,8 @@ class Lecroy_44MXs_A(Oscilloscope):
     CMD_Clear_Sweeps                        = "CLEAR_SWEEPS"
     CMD_Get_Channel_Attenuation             = "C%d:ATTENUATION?"
     CMD_Get_Channel_Range                   = ""
+    CMD_Get_Channel_Voltage_Offset          = "C%d:OFFSET?"
+    CMD_Get_Channel_Voltage_Scale           = "C%d:VOLT_DIV?"
     CMD_Get_Cursor_AVPosition               = ""
     CMD_Get_Cursor_BVPosition               = ""
     CMD_Get_Cursor_Function                 = "CURSORS?"
@@ -781,6 +784,8 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Clear_Sweeps                        = "CLEAR"
     CMD_Get_Channel_Attenuation             = ""#"CH%d:PRObe:SET?"
     CMD_Get_Channel_Range                   = "CH%d:PRObe:FORCEDRange?"
+    CMD_Get_Channel_Voltage_Offset          = "CH%d:OFFSET?"
+    CMD_Get_Channel_Voltage_Scale           = "CH%d:SCAle?"
     CMD_Get_Cursor_AVPosition               = "DISplay:WAVEView1:CURSor:CURSOR:WAVEform:AVPOSition?"
     CMD_Get_Cursor_BVPosition               = "DISplay:WAVEView1:CURSor:CURSOR:WAVEform:BVPOSition?"
     CMD_Get_Cursor_Function                 = "DISPLAY:WAVEVIEW1:CURSOR:CURSOR1:FUNCTION?"
@@ -1085,6 +1090,8 @@ class Tektronix_MSO54(Oscilloscope):
     CMD_Clear_Sweeps                        = "CLEAR"
     CMD_Get_Channel_Attenuation             = ""#"CH%d:PRObe:SET?"
     CMD_Get_Channel_Range                   = "CH%d:PRObe:FORCEDRange?"
+    CMD_Get_Channel_Voltage_Offset          = "CH%d:OFFSET?"
+    CMD_Get_Channel_Voltage_Scale           = "CH%d:SCAle?"
     CMD_Get_Cursor_AVPosition               = "DISplay:WAVEView1:CURSor:CURSOR:WAVEform:AVPOSition?"
     CMD_Get_Cursor_BVPosition               = "DISplay:WAVEView1:CURSor:CURSOR:WAVEform:BVPOSition?"
     CMD_Get_Cursor_Function                 = "DISPLAY:WAVEVIEW1:CURSOR:CURSOR1:FUNCTION?"
@@ -1390,6 +1397,8 @@ class Tektronix_DPO7054C(Oscilloscope):
     CMD_Clear_Sweeps                        = "CLEAR"
     CMD_Get_Channel_Attenuation             = ""#"CH%d:PRObe:SET?"
     CMD_Get_Channel_Range                   = "CH%d:PRObe:FORCEDRange?"
+    CMD_Get_Channel_Voltage_Offset          = "CH%d:OFFSET?"
+    CMD_Get_Channel_Voltage_Scale           = "CH%d:SCAle?"
     CMD_Get_Cursor_AVPosition               = ""
     CMD_Get_Cursor_BVPosition               = ""
     CMD_Get_Cursor_Function                 = ""
