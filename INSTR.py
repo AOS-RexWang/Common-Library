@@ -1,13 +1,15 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.5.0
- * @Date       : Nov 17, 2022
+ * @Version    : V1.5.1
+ * @Date       : Nov 29, 2022
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
  * Copyright (C) 2021 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 import pyvisa as visa
+from os import mkdir
+from os.path import isdir
 
 INSTR_CNT = 0
 OSC_MEASUREMENT = []
@@ -767,6 +769,11 @@ class Oscilloscope():
         self.Set_Cmd_Header("OFF")
         if self.CMD_Get_Channel_Voltage_Offset:
             return float(self.Instrument.query(self.CMD_Get_Channel_Voltage_Offset % channel)[:-1])
+    
+    def Get_Channel_Voltage_Scale(self, channel):
+        self.Set_Cmd_Header("OFF")
+        if self.CMD_Get_Channel_Voltage_Scale:
+            return float(self.Instrument.query(self.CMD_Get_Channel_Voltage_Scale % channel)[:-1])
 
     def Get_Cursor_Voltage(self, x):
         self.Set_Cmd_Header("OFF")
@@ -1378,6 +1385,8 @@ class Oscilloscope():
                 self.Instrument.write(self.CMD_Measurement_Statistics_State % ("OFF"))
 
     def Print_Screen(self, folder, file_name):
+        if not isdir(folder):
+            mkdir(folder)
         if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
             self.Instrument.write(self.CMD_Print_Screen)
             screen_data = self.Instrument.read_raw()
@@ -1399,7 +1408,6 @@ class Oscilloscope():
             self.Instrument.write("HARDCopy:FILEName 'temp'")
             self.Instrument.write("HARDCopy STARt")
             path = (self.Instrument.query("HARDCOPY:FILENAME?"))[1:-2] + ".png"
-            print(path)
             self.Instrument.write("FILESystem:READFile '%s'" % path)
             imgData = self.Instrument.read_raw()
             png_file = open("%s/%s.png" % (folder, file_name), "wb+")
@@ -1540,21 +1548,32 @@ class Oscilloscope():
             function = self.Get_Cursor_Function()
             if self.Model_Name == "Lecroy_HDO4034A" or self.Model_Name == "Lecroy_44MXs_A":
                 time_scale = self.Get_Time_Scale()
+                channel_offset = self.Get_Channel_Voltage_Offset(self.Cursor_Source)
+                channel_scale = self.Get_Channel_Voltage_Scale(self.Cursor_Source)
                 trigger_delay = float(self.Instrument.query("TRIG_DELAY?")[:-1])
                 trigger_position = trigger_delay / time_scale + 5
                 x1 = x1 / time_scale + trigger_position
                 x2 = x2 / time_scale + trigger_position
-            if function == "WAVE" or function == "VBA" or "HREL,ABSDELTA":
-                self.Instrument.write(self.CMD_Set_Cursor_APosition % (self.Cursor_Source, x1))
-                self.Instrument.write(self.CMD_Set_Cursor_BPosition % (self.Cursor_Source, x2))
-            elif function == "HBA":
-                self.Instrument.write(self.CMD_Set_Cursor_APosition % (function, y1))
-                self.Instrument.write(self.CMD_Set_Cursor_BPosition % (function, y2))
-            elif function == "SCREEN":
-                self.Instrument.write(self.CMD_Set_Cursor_AXPosition % (function, x1))
-                self.Instrument.write(self.CMD_Set_Cursor_BXPosition % (function, x2))
-                self.Instrument.write(self.CMD_Set_Cursor_AYPosition % (function, y1))
-                self.Instrument.write(self.CMD_Set_Cursor_BYPosition % (function, y2))
+                y1 = (y1 + channel_offset) / channel_scale
+                y2 = (y2 + channel_offset) / channel_scale
+                if function == "HREL,ABSDELTA":
+                    self.Instrument.write(self.CMD_Set_Cursor_APosition % (self.Cursor_Source, x1))
+                    self.Instrument.write(self.CMD_Set_Cursor_BPosition % (self.Cursor_Source, x2))
+                elif function == "VREL,ABSDELTA":
+                    self.Instrument.write(self.CMD_Set_Cursor_AYPosition % (self.Cursor_Source, y1))
+                    self.Instrument.write(self.CMD_Set_Cursor_BYPosition % (self.Cursor_Source, y2))
+            if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
+                if function == "WAVE" or function == "VBA":
+                    self.Instrument.write(self.CMD_Set_Cursor_APosition % (function, x1))
+                    self.Instrument.write(self.CMD_Set_Cursor_BPosition % (function, x2))
+                elif function == "HBA":
+                    self.Instrument.write(self.CMD_Set_Cursor_APosition % (function, y1))
+                    self.Instrument.write(self.CMD_Set_Cursor_BPosition % (function, y2))
+                elif function == "SCREEN":
+                    self.Instrument.write(self.CMD_Set_Cursor_AXPosition % (function, x1))
+                    self.Instrument.write(self.CMD_Set_Cursor_BXPosition % (function, x2))
+                    self.Instrument.write(self.CMD_Set_Cursor_AYPosition % (function, y1))
+                    self.Instrument.write(self.CMD_Set_Cursor_BYPosition % (function, y2))
 
     def Set_Cursor_Source(self, source1 = None, source2 = None):
         if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54" or self.Model_Name == "Tektronix_DPO7054C":
@@ -2527,6 +2546,24 @@ class Function_Generator():
     def Reset(self):
         self.Instrument.write("*RST")
 
+    def Set_Burst_Cycle(self, channel, cycle):
+        if self.CMD_Set_Burst_Cycle:
+            self.Instrument.write(self.CMD_Set_Burst_Cycle % (channel, cycle))
+
+    def Set_Burst_Idle_State(self, channel, state):
+        if self.CMD_Set_Burst_Idle_Start and self.CMD_Set_Burst_Idle_End:
+            if state == True:
+                self.Instrument.write(self.CMD_Set_Burst_Idle_End % (channel))
+            else:
+                self.Instrument.write(self.CMD_Set_Burst_Idle_Start % (channel))
+
+    def Set_Burst_State(self, channel, state):
+        if self.CMD_Set_Burst_On and self.CMD_Set_Burst_Off:
+            if state == True:
+                self.Instrument.write(self.CMD_Set_Burst_On % channel)
+            else:
+                self.Instrument.write(self.CMD_Set_Burst_Off % channel)
+
     def Set_Frequency(self, channel, frequency):
         if self.CMD_Set_Frequency:
             self.Instrument.write(self.CMD_Set_Frequency % (channel, frequency))
@@ -2548,6 +2585,10 @@ class Function_Generator():
     def Set_Phase(self, channel, phase):
         if self.CMD_Set_Phase:
             self.Instrument.write(self.CMD_Set_Phase % (channel, phase))
+
+    def Set_Phase_Synchronize(self):
+        if self.CMD_Set_Phase_Synchronize:
+            self.Instrument.write(self.CMD_Set_Phase_Synchronize)
 
     def Set_Pulse_Duty(self, channel, duty):
         if self.CMD_Set_Pulse_Duty:
@@ -2580,6 +2621,10 @@ class Function_Generator():
     def Set_Ramp_Symmetry(self, channel, symmetry):
         if self.CMD_Set_Ramp_Symmetry:
             self.Instrument.write(self.CMD_Set_Ramp_Symmetry % (channel, symmetry))
+
+    def Set_Trigger_Source(self, trigger_source): #{"TIMer", "EXTernal"}
+        if self.CMD_Set_Trigger_Source:
+            self.Instrument.write(self.CMD_Set_Trigger_Source % (trigger_source))
 
     def Set_Unit(self, channel, unit): #{"VPP", "VRMS"}
         if self.CMD_Set_Unit:
