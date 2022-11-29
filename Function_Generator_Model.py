@@ -1,7 +1,7 @@
 """
  * @File       : Function_Generator_Model.py
- * @Version    : V1.2.0
- * @Date       : Oct 24, 2022
+ * @Version    : V1.2.1
+ * @Date       : Nov 29, 2022
  * @Brief      : Child class of Function_Gernerator.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -11,6 +11,11 @@
 from Library.INSTR import Function_Generator
 
 class AFG31000_Series(Function_Generator):
+    CMD_Set_Burst_Cycle     = "SOURce%d:BURSt:NCYCles %d"
+    CMD_Set_Burst_Idle_End  = "SOURce%d:BURSt:IDLE END"
+    CMD_Set_Burst_Idle_Start= "SOURce%d:BURSt:IDLE START"
+    CMD_Set_Burst_Off       = "SOURce%d:BURSt OFF"
+    CMD_Set_Burst_On        = "SOURce%d:BURSt ON"
     CMD_Set_Frequency       = "SOURce%d:FREQuency %.6fHz"
     CMD_Set_Function        = "SOURce%d:FUNCtion:SHAPe %s"
     VAR_Set_Function        = {"DC":"DC", "SIN":"SINusoid", "SQU":"SQUare", "RAMP":"Ramp", "PULSE":"PULSe"}
@@ -25,6 +30,7 @@ class AFG31000_Series(Function_Generator):
     CMD_Set_Pulse_Trailing  = "SOURce%d:PULSe:TRANsition:Trailing %.10f"
     CMD_Set_Pulse_Width     = "SOURce%d:PULSe:WIDTh %.10f"
     CMD_Set_Ramp_Symmetry   = "SOURce%d:FUNCtion:RAMP:SYMMetry %.1f"
+    CMD_Set_Trigger_Source  = "TRIGger:SOURce %s"
     CMD_Set_Unit            = "SOURce%d:VOLTage:UNIT %s"
     CMD_Set_Voltage_Amplitude       = "SOURce%d:VOLTage:LEVel:IMMediate:AMPLitude %.3f%s"
     CMD_Set_Voltage_High            = "SOURce%d:VOLTage:LEVel:IMMediate:HIGH %.9fV"
