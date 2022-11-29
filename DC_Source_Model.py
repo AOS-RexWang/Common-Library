@@ -1,7 +1,7 @@
 """
  * @File       : DC_Source_Model.py
- * @Version    : V1.3.0
- * @Date       : Sep 05, 2022
+ * @Version    : V1.3.1
+ * @Date       : Nov 29, 2022
  * @Brief      : Child class of DC Source.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -207,7 +207,7 @@ class Keysight_N8700_Series(DC_Source):
 
 class RohdeSchwarz_HMP_Series(DC_Source):
     Model_Name                       = "Rohde&Schwarz_HMP_Series"
-    CMD_Set_Output_Channel           = "INST OUT %d"
+    CMD_Set_Output_Channel           = "INST OUT%d"
     CMD_Set_Voltage                  = "VOLTage %.3f"
     CMD_Set_Voltage_Limit_State_On   = ""
     CMD_Set_Voltage_Limit_State_Off  = ""
