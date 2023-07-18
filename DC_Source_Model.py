@@ -1,11 +1,11 @@
 """
  * @File       : DC_Source_Model.py
- * @Version    : V1.3.1
- * @Date       : Nov 29, 2022
+ * @Version    : V1.4.0
+ * @Date       : July 18, 2023
  * @Brief      : Child class of DC Source.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
- * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
+ * Copyright (C) 2023 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
 from Library.INSTR import DC_Source
@@ -230,6 +230,38 @@ class RohdeSchwarz_HMP_Series(DC_Source):
     CMD_Get_Output_State             = "OUTPut?"
     CMD_Set_Output_Channel_State_On  = "OUTPut:SELect ON"
     CMD_Set_Output_Channel_State_Off = "OUTPut:SELect OFF"
+    CMD_Set_Output_Series_State_On   = ""
+    CMD_Set_Output_Series_State_Off  = ""
+    CMD_Set_Program_Mode             = ""
+    CMD_Set_Program_Step_Start_V     = ""
+    CMD_Set_Program_Step_End_V       = ""
+    CMD_Set_Program_Step_Time        = ""
+
+class KIKUSUI_PWR801L_Series(DC_Source):
+    Model_Name                       = "KIKUSUI_PWR801L_Series"
+    CMD_Set_Output_Channel           = ""
+    CMD_Set_Voltage                  = "VOLTage %.3f"
+    CMD_Set_Voltage_Limit_State_On   = "VOLT:LIM:AUTO ON"
+    CMD_Set_Voltage_Limit_State_Off  = "VOLT:LIM:AUTO OFF"
+    CMD_Set_Voltage_Limit            = "VOLT:LIM:LOW %.3f"
+    CMD_Set_Voltage_Slew_Rate        = ""
+    CMD_Set_Current                  = "CURR %.3f"
+    CMD_Set_Current_Limit_State_On   = "CURR:LIM:AUTO ON"
+    CMD_Set_Current_Limit_State_Off  = "CURR:LIM:AUTO OFF"
+    CMD_Set_Current_Limit            = "CURR:PROT %.3f"
+    CMD_Set_Current_Slew_Rate        = ""
+    CMD_Set_Remote_Sense_On          = ""
+    CMD_Set_Remote_Sense_Off         = ""
+
+    CMD_Measure_Voltage              = "MEAS:VOLT?"
+    CMD_Measure_Current              = "MEAS:CURR?"
+    CMD_Measure_Power                = ""
+
+    CMD_Set_Output_State_On          = "OUTPut ON"
+    CMD_Set_Output_State_Off         = "OUTPut OFF"
+    CMD_Get_Output_State             = "OUTPut?"
+    CMD_Set_Output_Channel_State_On  = ""
+    CMD_Set_Output_Channel_State_Off = ""
     CMD_Set_Output_Series_State_On   = ""
     CMD_Set_Output_Series_State_Off  = ""
     CMD_Set_Program_Mode             = ""
