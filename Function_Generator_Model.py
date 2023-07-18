@@ -1,16 +1,17 @@
 """
  * @File       : Function_Generator_Model.py
- * @Version    : V1.2.1
- * @Date       : Nov 29, 2022
+ * @Version    : V1.2.2
+ * @Date       : July 18, 2023
  * @Brief      : Child class of Function_Gernerator.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
- * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
+ * Copyright (C) 2023 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
 from Library.INSTR import Function_Generator
 
 class AFG31000_Series(Function_Generator):
+    CMD_Load_Memory_Trace   = "MMEMory:LOAD:TRACe EMEMory%d,'%s'"
     CMD_Set_Burst_Cycle     = "SOURce%d:BURSt:NCYCles %d"
     CMD_Set_Burst_Idle_End  = "SOURce%d:BURSt:IDLE END"
     CMD_Set_Burst_Idle_Start= "SOURce%d:BURSt:IDLE START"
@@ -18,7 +19,7 @@ class AFG31000_Series(Function_Generator):
     CMD_Set_Burst_On        = "SOURce%d:BURSt ON"
     CMD_Set_Frequency       = "SOURce%d:FREQuency %.6fHz"
     CMD_Set_Function        = "SOURce%d:FUNCtion:SHAPe %s"
-    VAR_Set_Function        = {"DC":"DC", "SIN":"SINusoid", "SQU":"SQUare", "RAMP":"Ramp", "PULSE":"PULSe"}
+    VAR_Set_Function        = {"DC":"DC", "SIN":"SINusoid", "SQU":"SQUare", "RAMP":"Ramp", "PULSE":"PULSe", "MEMORY1":"EMEMory1", "MEMORY2":"EMEMory2"}
     CMD_Set_Impedance       = "OUTPut%d:IMPedance %s"
     CMD_Set_Output_State    = "OUTPut%d:STATe %d"
     CMD_Set_Phase           = "SOURce%d:PHASe:ADJust %.2fDEG"
