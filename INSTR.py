@@ -1,11 +1,11 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.5.1
- * @Date       : Nov 29, 2022
+ * @Version    : V1.6.0
+ * @Date       : July 18, 2023
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
- * Copyright (C) 2021 Alpha & Omega Semiconductor Ltd. All rights reserved.
+ * Copyright (C) 2023 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 import pyvisa as visa
 from os import mkdir
@@ -613,7 +613,22 @@ class Oscilloscope():
             self.Cursor_Source = 1
             self.position_offset = [0] * self.Channel_Number
             INSTR_CNT += 1
-            
+    
+    def Auto_set(self, horizontal_state = False, vertical_state = False, trigger_state = False, acquisition_state = False):
+        bandwidth = []
+        for ch in range(1, self.Channel_Number + 1):
+            bandwidth.append(float(self.Instrument.query("CH%d:BANdwidth?" % (ch))))
+        self.Instrument.write("AUTOSet:HORizontal:ENAble %d" % horizontal_state)
+        self.Instrument.write("AUTOSet:VERTical:ENAble %d" % vertical_state)
+        self.Instrument.write("AUTOSet:TRIGger:ENAble %d" % trigger_state)
+        self.Instrument.write("AUTOSet:ACQuisition:ENAble %d" % acquisition_state)
+        self.Instrument.write("AUTOSet EXECute")
+        self.Instrument.query("*OPC?")
+        for ch in range(1, self.Channel_Number + 1):
+            self.Instrument.write("CH%d:BANdwidth %.f" % (ch, bandwidth[ch-1]))
+        
+        self.Instrument.query("*OPC?")
+    
     def Factory(self):
         if self.Model_Name == "Tektronix_MSO58" or self.Model_Name == "Tektronix_MSO54":
             self.Instrument.write("FACTORY")
@@ -2286,12 +2301,12 @@ class DAQ():
                 self.Set_Sense_Range(mode_range)
                 self.Route_Add(channel)
 
-    # def Config_cur(self, mode, mode_range, mode_resolution, ch):
-        # self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution, ch))
-
-    #def Config_temp(self, mode = None, mode_range = None, mode_resolution = None, channel = None):
-    #    if self.CMD_Config_TMode:
-    #        self.Instrument.write(self.CMD_Config_TMode % (mode, mode_range, mode_resolution, channel))
+    def Config_cur(self, mode = None, mode_range = None, mode_resolution = None, channel = None):
+        if self.CMD_Config_IMode:
+            if self.Model_Name == "Keithley_DAQ6510":
+                self.Instrument.write(self.CMD_Config_IMode % (mode, channel))
+                self.Set_Sense_Range(mode_range)
+                self.Route_Add(channel)
 
     def Initiate_Measurement(self):
         if self.Model_Name == "Keithley_DAQ6510":
@@ -2302,6 +2317,7 @@ class DAQ():
     def Get_Measure_Data(self):
         if self.Model_Name == "Keithley_DAQ6510":
             self.Measure_Data = self.Instrument.query("TRAC:DATA? 1, %d" % (self.Channel_Count))[:-1].split(",")
+            print(self.Measure_Data)
 
     def Get_Trigger_Status(self):
         if self.CMD_Get_Trigger_Status:
@@ -2369,6 +2385,10 @@ class DAQ():
     def Set_Sense_VNPLC(self, nplc, channel):
         if self.CMD_Set_Sense_VNPLC:
             self.Instrument.write(self.CMD_Set_Sense_VNPLC % (nplc, channel))
+    
+    def Set_Sense_INPLC(self, nplc, channel):
+        if self.CMD_Set_Sense_INPLC:
+            self.Instrument.write(self.CMD_Set_Sense_INPLC % (nplc, channel))
 
     def Set_Trigger_Channel(self, channel):
         if self.CMD_Set_Trigger_Channel:
@@ -2545,7 +2565,16 @@ class Function_Generator():
 
     def Reset(self):
         self.Instrument.write("*RST")
-
+    
+    def Load_Memory_Trace(self, channel, source, file_name): #source: ["MEMORY", "USB"]
+        if self.CMD_Load_Memory_Trace:
+            if source == "MEMORY":
+                path = "M:/%s" % file_name
+            elif source == "USB":
+                path = "U:/%s" % file_name
+            
+            self.Instrument.write(self.CMD_Load_Memory_Trace % (channel, path))
+    
     def Set_Burst_Cycle(self, channel, cycle):
         if self.CMD_Set_Burst_Cycle:
             self.Instrument.write(self.CMD_Set_Burst_Cycle % (channel, cycle))
@@ -2568,7 +2597,7 @@ class Function_Generator():
         if self.CMD_Set_Frequency:
             self.Instrument.write(self.CMD_Set_Frequency % (channel, frequency))
 
-    def Set_Function(self, channel, function): #function: {"DC", "SIN", "SQU", "RAMP", "PULSE"}
+    def Set_Function(self, channel, function): #function: {"DC", "SIN", "SQU", "RAMP", "PULSE", "MEMORY1", MEMORY2"}
         function = self.VAR_Set_Function.get(function)
         if self.CMD_Set_Function:
             self.Instrument.write(self.CMD_Set_Function % (channel, function))
