@@ -1,10 +1,10 @@
 """
  * @File       : DAQ_Model.py
- * @Version    : V1.1.0
- * @Date       : Oct 24, 2022
+ * @Version    : V1.2.0
+ * @Date       : July 18, 2023
  * @Brief      : Child class of DAQ.
  * @Author     : Rex Wang
- * @Last editor: Ivan Chen
+ * @Last editor: Rex Wang
  * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
@@ -34,12 +34,12 @@ class Keysight_DAQ970A(DAQ):
 class Keithley_DAQ6510(DAQ):
     Model_Name          = "Keithley_DAQ6510"
     CMD_Config_VMode    = "SENS:FUNC 'VOLT:%s',(@%d)"
-    # CMD_Config_IMode = "CONF:CURR:%s %.6f, %.6f,(@%d)"
+    CMD_Config_IMode    = "SENS:FUNC 'CURR:%s',(@%d)"
     CMD_Config_TMode    = "CONF:TEMP:%s %s, %.6f,(@%d)"
     CMD_Get_Trigger_Status = "ROUTe:SCAN:STATe?"
     CMD_Measure_VNPLC   = ""
     CMD_Measure_Voltage = "MEAS:VOLT:%s? %.1f, %.6f,(@%d)"
-    # CMD_Measure_Current = "MEAS:CURR:%s? %.6f, %.6f,(@%d)"
+    CMD_Measure_Current = "MEAS:CURR:%s? %.1f, %.6f,(@%d)"
     CMD_Measure_Temp    = "MEAS:TEMP:%s? %s, MAX,(@%d)"
     CMD_Route_Add       = "ROUTe:SCAN:Add (@%d)"
     CMD_Set_Trigger_Channel = "ROUTe:SCAN:MONitor:CHANnel (@%d)"
@@ -51,3 +51,4 @@ class Keithley_DAQ6510(DAQ):
     CMD_Set_Sense_Average_Type = "VOLT:AVER:TCON %s"
     CMD_Set_Sense_Range = ":SENS:CURR:RANG %.6f"
     CMD_Set_Sense_VNPLC = "SENS:VOLT:NPLC %s, (@%d)"
+    CMD_Set_Sense_INPLC = "SENS:CURR:NPLC %s, (@%d)"
