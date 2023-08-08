@@ -1,7 +1,7 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.6.0
- * @Date       : July 18, 2023
+ * @Version    : V1.7.0
+ * @Date       : Aug 8, 2023
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
@@ -2337,10 +2337,10 @@ class DAQ():
             elif self.Model_Name == "Keithley_DAQ6510":
                 return float(self.Measure_Data[self.Channel_List[channel]])
                 
-    def Measure_VNPLC(self, NPLC = None, channel = None):
+    def Measure_VNPLC(self, nplc = None, channel = None):
         if  self.CMD_Measure_VNPLC:
             if self.Model_Name == "Keysight_DAQ970A":
-                self.Instrument.write(self.CMD_Measure_VNPLC % (NPLC, channel))
+                self.Instrument.write(self.CMD_Measure_VNPLC % (nplc, channel))
                 if channel != None:
                     return float(self.Instrument.query('READ?'))
                 else:
@@ -2453,14 +2453,14 @@ class DMM():
         if  self.CMD_Measure_Voltage:
             return float(self.Instrument.query(self.CMD_Measure_Voltage % (mode)))
 
-    def Measure_VNPLC(self, NPLC):
+    def Measure_VNPLC(self, nplc):
         if self.CMD_Measure_VNPLC:
-            self.Instrument.write(self.CMD_Measure_VNPLC % (NPLC))
+            self.Instrument.write(self.CMD_Measure_VNPLC % (nplc))
             return float(self.Instrument.query('READ?'))
     
-    def Measure_INPLC(self, NPLC):
+    def Measure_INPLC(self, nplc):
         if self.CMD_Measure_INPLC:
-            self.Instrument.write(self.CMD_Measure_INPLC % (NPLC))
+            self.Instrument.write(self.CMD_Measure_INPLC % (nplc))
             return float(self.Instrument.query('READ?'))
     
     def Measure_Current(self, mode):
@@ -2518,14 +2518,14 @@ class DMM_2():
         if  self.CMD_Measure_Voltage:
             return float(self.Instrument.query(self.CMD_Measure_Voltage % (mode)))
 
-    def Measure_VNPLC(self, NPLC):
+    def Measure_VNPLC(self, nplc):
         if self.CMD_Measure_VNPLC:
-            self.Instrument.write(self.CMD_Measure_VNPLC % (NPLC))
+            self.Instrument.write(self.CMD_Measure_VNPLC % (nplc))
             return float(self.Instrument.query('READ?'))
     
-    def Measure_INPLC(self, NPLC):
+    def Measure_INPLC(self, nplc):
         if self.CMD_Measure_INPLC:
-            self.Instrument.write(self.CMD_Measure_INPLC % (NPLC))
+            self.Instrument.write(self.CMD_Measure_INPLC % (nplc))
             return float(self.Instrument.query('READ?'))
     
     def Measure_Current(self, mode):
@@ -2575,6 +2575,10 @@ class Function_Generator():
             
             self.Instrument.write(self.CMD_Load_Memory_Trace % (channel, path))
     
+    def Manual_Trigger(self):
+        if self.CMD_Manual_Trigger:
+            self.Instrument.write(self.CMD_Manual_Trigger)
+    
     def Set_Burst_Cycle(self, channel, cycle):
         if self.CMD_Set_Burst_Cycle:
             self.Instrument.write(self.CMD_Set_Burst_Cycle % (channel, cycle))
@@ -2592,6 +2596,10 @@ class Function_Generator():
                 self.Instrument.write(self.CMD_Set_Burst_On % channel)
             else:
                 self.Instrument.write(self.CMD_Set_Burst_Off % channel)
+
+    def Set_Burst_Trigger_Delay(self, trigger_dealy):
+        if self.CMD_Set_Burst_Trigger_Delay:
+            self.Instrument.write(self.CMD_Set_Burst_Trigger_Delay % (trigger_dealy))
 
     def Set_Frequency(self, channel, frequency):
         if self.CMD_Set_Frequency:
@@ -2651,9 +2659,17 @@ class Function_Generator():
         if self.CMD_Set_Ramp_Symmetry:
             self.Instrument.write(self.CMD_Set_Ramp_Symmetry % (channel, symmetry))
 
+    def Set_Trigger_Slope(self, trigger_slope): #{"POSitive", "NEGative"}
+        if self.CMD_Set_Trigger_Slope:
+            self.Instrument.write(self.CMD_Set_Trigger_Slope % (trigger_slope))
+
     def Set_Trigger_Source(self, trigger_source): #{"TIMer", "EXTernal"}
         if self.CMD_Set_Trigger_Source:
             self.Instrument.write(self.CMD_Set_Trigger_Source % (trigger_source))
+
+    def Set_Trigger_Timer(self, trigger_interval):
+        if self.CMD_Set_Trigger_Timer:
+            self.Instrument.write(self.CMD_Set_Trigger_Timer % (trigger_interval))
 
     def Set_Unit(self, channel, unit): #{"VPP", "VRMS"}
         if self.CMD_Set_Unit:
