@@ -2597,9 +2597,9 @@ class Function_Generator():
             else:
                 self.Instrument.write(self.CMD_Set_Burst_Off % channel)
 
-    def Set_Burst_Trigger_Delay(self, trigger_dealy):
+    def Set_Burst_Trigger_Delay(self, channel, trigger_dealy):
         if self.CMD_Set_Burst_Trigger_Delay:
-            self.Instrument.write(self.CMD_Set_Burst_Trigger_Delay % (trigger_dealy))
+            self.Instrument.write(self.CMD_Set_Burst_Trigger_Delay % (channel, trigger_dealy))
 
     def Set_Frequency(self, channel, frequency):
         if self.CMD_Set_Frequency:
