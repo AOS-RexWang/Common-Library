@@ -1,11 +1,11 @@
 """
  * @File       : INSTR.py
- * @Version    : V1.7.0
- * @Date       : Aug 8, 2023
+ * @Version    : V1.8.0
+ * @Date       : Mar 4, 2024
  * @Brief      : Father class of Instrument.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
- * Copyright (C) 2023 Alpha & Omega Semiconductor Ltd. All rights reserved.
+ * Copyright (C) 2024 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 import pyvisa as visa
 from os import mkdir
@@ -655,12 +655,14 @@ class Oscilloscope():
             self.Set_Channel_Range_Mode(channel = channel, range_mode = "MANual")
             self.Set_Channel_Range(channel = channel, channel_range = channel_range[channel - 1])
 
-    def Config(self, display_grid = None, time_scale = None, timeout = None):
+    def Config(self, display_grid = None, grid_type = None, time_scale = None, timeout = None):
         self.Set_Display_State(True)
         self.Set_Axis_Labels_State(False)
         self.Set_Cmd_Header("OFF")
         if display_grid != None:
             self.Set_Display_Grid(display_grid) #display_grid: {"Overlay", "Stacked"}
+        if grid_type != None:
+            self.Set_Display_Grid_Type(grid_type) #"MOVEABLE", "FIXED"
         self.Set_Acquire_mode("HIRes") #{SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
         if time_scale != None:
             self.Set_Time_Scale(time_scale)
@@ -682,7 +684,11 @@ class Oscilloscope():
                        c1_position = None, c2_position = None, c3_position = None, c4_position = None,
                        c5_position = None, c6_position = None, c7_position = None, c8_position = None,
                        c1_label = None, c2_label = None, c3_label = None, c4_label = None,
-                       c5_label = None, c6_label = None, c7_label = None, c8_label = None):
+                       c5_label = None, c6_label = None, c7_label = None, c8_label = None,
+                       c1_label_x_position = None, c2_label_x_position = None, c3_label_x_position = None, c4_label_x_position = None,
+                       c5_label_x_position = None, c6_label_x_position = None, c7_label_x_position = None, c8_label_x_position = None,
+                       c1_label_y_position = None, c2_label_y_position = None, c3_label_y_position = None, c4_label_y_position = None,
+                       c5_label_y_position = None, c6_label_y_position = None, c7_label_y_position = None, c8_label_y_position = None):
         
         channel_state = [c1_state, c2_state, c3_state, c4_state, c5_state, c6_state, c7_state, c8_state]
         for channel, state in enumerate(channel_state, start = 1):
@@ -740,6 +746,20 @@ class Oscilloscope():
                     break
                 self.Set_Channel_Label_State(channel, True)
                 self.Set_Channel_Label(int(channel), label)
+        
+        channel_label_x_position = [c1_label_x_position, c2_label_x_position, c3_label_x_position, c4_label_x_position, c5_label_x_position, c6_label_x_position, c7_label_x_position, c8_label_x_position]
+        for channel, label_x_position in enumerate(channel_label_x_position, start = 1):
+            if label_x_position != None and label_x_position != "":
+                if channel > self.Channel_Number:
+                    break
+                self.Set_Channel_Label_X_Position(channel, label_x_position)
+        
+        channel_label_y_position = [c1_label_y_position, c2_label_y_position, c3_label_y_position, c4_label_y_position, c5_label_y_position, c6_label_y_position, c7_label_y_position, c8_label_y_position]
+        for channel, label_y_position in enumerate(channel_label_y_position, start = 1):
+            if label_y_position != None and label_y_position != "":
+                if channel > self.Channel_Number:
+                    break
+                self.Set_Channel_Label_Y_Position(channel, label_y_position)
 
     def Trigger_Config(self, trigger_channel = None, trigger_coupling = None, trigger_delay = None, trigger_position = None, trigger_level = None,
                        trigger_slope = None, trigger_mode = None):
@@ -825,24 +845,30 @@ class Oscilloscope():
             if type(index) == int:
                 if index >= 1 and index <= 8:
                     statistic_data = self.Instrument.query(self.CMD_Get_Measurement_Statistics_Value % (index)).replace("\n", "").split(",")
-                    statistic_list = list(statistic_data[4:])
-                    statistic_dict = {}
-                    statistic_dict["Index"] = statistic_data[1]
-                    statistic_dict["MEAS"] = statistic_data[2]
-                    for i in range(len(statistic_list) >> 1):
-                        if statistic_list[i * 2] in self.VAR_Get_Measurement_Statistics_Value.values():
-                            if statistic_list[i * 2 + 1] == "UNDEF":
-                                statistic_list[i * 2 + 1] = "-"
-                            try:
-                                statistic_dict[statistic_list[i * 2]] = float(statistic_list[i * 2 + 1])
-                            except:
-                                statistic_dict[statistic_list[i * 2]] = statistic_list[i * 2 + 1]
-                    if statistic == None:
-                        return statistic_dict
-                    elif statistic in self.VAR_Get_Measurement_Statistics_Value.values():
-                        return statistic_dict[statistic]
+                    if len(statistic_data) > 2:
+                        statistic_list = list(statistic_data[4:])
+                        statistic_dict = {}
+                        statistic_dict["Index"] = statistic_data[1]
+                        statistic_dict["MEAS"] = statistic_data[2]
+                        for i in range(len(statistic_list) >> 1):
+                            if statistic_list[i * 2] in self.VAR_Get_Measurement_Statistics_Value.values():
+                                if statistic_list[i * 2 + 1] == "UNDEF":
+                                    statistic_list[i * 2 + 1] = "-"
+                                try:
+                                    statistic_dict[statistic_list[i * 2]] = float(statistic_list[i * 2 + 1])
+                                except:
+                                    statistic_dict[statistic_list[i * 2]] = statistic_list[i * 2 + 1]
+                        if statistic == None:
+                            return statistic_dict
+                        elif statistic in self.VAR_Get_Measurement_Statistics_Value.values():
+                            return statistic_dict[statistic]
+                        else:
+                            return "Error"
                     else:
-                        return "Error"
+                        statistic_dict = {}
+                        statistic_dict["Index"] = index
+                        statistic_dict["MEAS"] = ""
+                        return statistic_dict
                         
             else:
                 statistic_list = list(self.Instrument.query(self.CMD_Get_Measurement_Statistics_Value % (index)).split(",")[2:])
@@ -1063,7 +1089,13 @@ class Oscilloscope():
                             source2_fall_low = None,
                             gate_start = None,
                             gate_stop = None,
-                            label = None):
+                            label = None,
+                            range_state = None,
+                            range_max = None,
+                            range_min = None,
+                            population_global_flag = None,
+                            population_state = None,
+                            population_value = None):
         if self.CMD_Measurement_Setting:
             if self.Model_Name == "Lecroy_HDO4034A":
                 if unit1 == "%" or unit1 == "PERC" or unit1 == "PCT":
@@ -1230,10 +1262,14 @@ class Oscilloscope():
                     source2_method = "PERCent"
                     if source2_fall_high != None or source2_fall_mid != None or source2_fall_low != None:
                         self.Instrument.write("MEASUrement:MEAS%d:REFLevels2:PERCent:TYPE CUSTom" % (index))
+                    if hysteresis2 != None:
+                        self.Instrument.write("MEASUrement:MEAS%d:REFLevels2:PERCent:HYSTeresis %f" % (index, hysteresis2))
                 else:
                     source2_method = "ABSolute"
                     if source2_fall_high != None or source2_fall_mid != None or source2_fall_low != None:
                         self.Instrument.write("MEASUrement:MEAS%d:REFLevels2:ABSolute:TYPE UNIQUE" % (index))
+                    if hysteresis2 != None:
+                        self.Instrument.write("MEASUrement:MEAS%d:REFLevels2:ABSolute:HYSTeresis %f" % (index, hysteresis2))
                 self.Instrument.write("MEASUREMENT:MEAS%d:REFLevels2:METHOD %s" % (index, source2_method))
                 
                 if slope1 != None:
@@ -1281,8 +1317,26 @@ class Oscilloscope():
                     self.Instrument.write("MEASUrement:MEAS%d:REFLevels2:%s:FALLLow %f" % (index, source2_method, source2_fall_low))
                 self.Measurement_Gate(index, gate_start, gate_stop)
                 
-                if label != None:
+                if label != None and self.CMD_Measurement_Label:
                     self.Instrument.write(self.CMD_Measurement_Label % (index, label))
+                    
+                if range_state != None and self.CMD_Measurement_Measure_Range_State:
+                    self.Instrument.write(self.CMD_Measurement_Measure_Range_State % (index, range_state))
+                
+                if range_max != None and self.CMD_Measurement_Measure_Range_Max:
+                    self.Instrument.write(self.CMD_Measurement_Measure_Range_Max % (index, range_max))
+                
+                if range_min != None and self.CMD_Measurement_Measure_Range_Min:
+                    self.Instrument.write(self.CMD_Measurement_Measure_Range_Min % (index, range_min))
+                
+                if population_global_flag != None and self.CMD_Measurement_Population_Global:
+                    self.Instrument.write(self.CMD_Measurement_Population_Global % (index, population_global_flag))
+                
+                if population_state != None and self.CMD_Measurement_Population_State:
+                    self.Instrument.write(self.CMD_Measurement_Population_State % (index, population_state))
+                
+                if population_value != None and self.CMD_Measurement_Population_Value:
+                    self.Instrument.write(self.CMD_Measurement_Population_Value % (index, population_value))
 
             elif self.Model_Name == "Tektronix_DPO7054C":
                 measurement_list = {
@@ -1483,6 +1537,14 @@ class Oscilloscope():
         if self.CMD_Set_Channel_Label_State:
             self.Instrument.write(self.CMD_Set_Channel_Label_State % (channel, state))
 
+    def Set_Channel_Label_X_Position(self, channel, position):
+        if self.CMD_Set_Channel_Label_X_Position:
+            self.Instrument.write(self.CMD_Set_Channel_Label_X_Position % (channel, position))
+    
+    def Set_Channel_Label_Y_Position(self, channel, position):
+        if self.CMD_Set_Channel_Label_Y_Position:
+            self.Instrument.write(self.CMD_Set_Channel_Label_Y_Position % (channel, position))
+
     def Set_Channel_Noise_Filter(self, channel, noise_filter):
         if self.CMD_Set_Channel_Noise_Filter:
             if noise_filter >= 0 and noise_filter <= 3:
@@ -1496,6 +1558,10 @@ class Oscilloscope():
     def Set_Channel_Range_Mode(self, channel, range_mode):
         if self.CMD_Set_Channel_Range_Mode:
             self.Instrument.write(self.CMD_Set_Channel_Range_Mode % (channel, range_mode))
+
+    def Set_Channel_Termination(self, channel, termination): #termination: {10, 1000000}
+        if self.CMD_Set_Channel_Termination:
+            self.Instrument.write(self.CMD_Set_Channel_Termination % (channel, termination))
 
     def Set_Channel_Trace_State(self, channel, state):  
         if self.CMD_Set_Channel_Trace_State_On and self.CMD_Set_Channel_Trace_State_Off:
@@ -1613,10 +1679,19 @@ class Oscilloscope():
             if self.CMD_Set_Cursor_State_OFF:
                 self.Instrument.write(self.CMD_Set_Cursor_State_OFF)
 
+    def Set_Display_Select_Channel(self, channel):
+        if self.CMD_Set_Display_Select_Source:
+            source = "CH%d" % (channel)
+            self.Instrument.write(self.CMD_Set_Display_Select_Source % (source))
+
     def Set_Display_Grid(self, display_grid): #display_grid: {"Overlay", "Stacked"}
         grid = self.VAR_Set_Display_Grid.get(display_grid)
         if self.CMD_Set_Display_Grid and grid:
             self.Instrument.write(self.CMD_Set_Display_Grid % (grid))
+            
+    def Set_Display_Grid_Type(self, grid_type): #"MOVEABLE", "FIXED"
+        if self.CMD_Set_Display_Grid_Type:
+            self.Instrument.write(self.CMD_Set_Display_Grid_Type % grid_type)
 
     def Set_Display_State(self, state):
         if self.CMD_Set_Display_State_On and self.CMD_Set_Display_State_Off:
@@ -2413,64 +2488,23 @@ class DAQ():
         if INSTR_CNT == 0:
             self.Resource_Manager.close()
 
-class DMM():
+class PWM_Gen_Device():
     def __init__(self, instrument_address=None):
         global INSTR_CNT
         self.State = False
         self.Resource_Manager = visa.ResourceManager()
+        self.Device_Address = 1
+        self.Busy = False
+        self.Read_Enable = True
         if instrument_address != None:
             self.Instrument = self.Resource_Manager.open_resource(instrument_address)
-            self.Instrument.timeout = 20000
+            self.Instrument.timeout = 5000
+            self.Instrument.baud_rate = 9600
             INSTR_CNT += 1
 
     def Reset(self):
-        self.Instrument.write("*RST")
-
-    def Config_vol(self, mode, mode_range, mode_resolution = 10):
-        if self.CMD_Config_VMode:
-            if mode_range != "AUTO":
-                mode_range = str(mode_range)
-                self.Instrument.write(self.CMD_Config_VMode % (mode, mode_range, mode_resolution))
-            else:
-                self.Instrument.write(self.CMD_Config_VMode_Auto_Range % (mode))
-
-    def Config_cur(self, mode, mode_range, mode_resolution = 10):
-        if self.CMD_Config_IMode:
-            if mode_range != "AUTO":
-                self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
-            else:
-                self.Instrument.write(self.CMD_Config_IMode_Auto_Range % (mode))
-            if self.Model_Name == "Keysight_34461":
-                self.Set_Current_Terminals(mode = mode, terminals = 10)
-
-    def Measure(self, item, mode):
-        if item == "Voltage":
-            return self.Measure_Voltage(mode)
-        elif item == "Current":
-            return self.Measure_Current(mode)
-
-    def Measure_Voltage(self, mode):
-        if  self.CMD_Measure_Voltage:
-            return float(self.Instrument.query(self.CMD_Measure_Voltage % (mode)))
-
-    def Measure_VNPLC(self, nplc):
-        if self.CMD_Measure_VNPLC:
-            self.Instrument.write(self.CMD_Measure_VNPLC % (nplc))
-            return float(self.Instrument.query('READ?'))
+        pass
     
-    def Measure_INPLC(self, nplc):
-        if self.CMD_Measure_INPLC:
-            self.Instrument.write(self.CMD_Measure_INPLC % (nplc))
-            return float(self.Instrument.query('READ?'))
-    
-    def Measure_Current(self, mode):
-        if self.CMD_Measure_Current:
-            return float(self.Instrument.query(self.CMD_Measure_Current % (mode)))
-
-    def Set_Current_Terminals(self, mode, terminals):
-        if self.CMD_Set_Current_Terminals:
-            self.Instrument.write("SENSe:CURRent:%s:TERMinals %d" % (mode, terminals))
-
     def Close(self):
         global INSTR_CNT
         self.Instrument.close()
@@ -2478,63 +2512,138 @@ class DMM():
         if INSTR_CNT == 0:
             self.Resource_Manager.close()
 
-class DMM_2():
+class Chamber():
     def __init__(self, instrument_address=None):
         global INSTR_CNT
         self.State = False
         self.Resource_Manager = visa.ResourceManager()
+        self.Device_Address = 1
+        self.Check_Sum_State = True
+        self.Busy = False
         if instrument_address != None:
             self.Instrument = self.Resource_Manager.open_resource(instrument_address)
-            self.Instrument.timeout = 20000
+            self.Instrument.timeout = 5000
+            self.Instrument.baud_rate = 115200
             INSTR_CNT += 1
 
     def Reset(self):
-        self.Instrument.write("*RST")
-
-    def Config_vol(self, mode, mode_range, mode_resolution = 10):
-        if self.CMD_Config_VMode:
-            if mode_range != "AUTO":
-                mode_range = str(mode_range)
-                self.Instrument.write(self.CMD_Config_VMode % (mode, mode_range, mode_resolution))
-            else:
-                self.Instrument.write(self.CMD_Config_VMode_Auto_Range % (mode))
-
-    def Config_cur(self, mode, mode_range, mode_resolution = 10):
-        if self.CMD_Config_IMode:
-            if mode_range != "AUTO":
-                self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
-            else:
-                self.Instrument.write(self.CMD_Config_IMode_Auto_Range % (mode))
-            if self.Model_Name == "Keysight_34461":
-                self.Set_Current_Terminals(mode = mode, terminals = 10)
-
-    def Measure(self, item, mode):
-        if item == "Voltage":
-            return self.Measure_Voltage(mode)
-        elif item == "Current":
-            return self.Measure_Current(mode)
-
-    def Measure_Voltage(self, mode):
-        if  self.CMD_Measure_Voltage:
-            return float(self.Instrument.query(self.CMD_Measure_Voltage % (mode)))
-
-    def Measure_VNPLC(self, nplc):
-        if self.CMD_Measure_VNPLC:
-            self.Instrument.write(self.CMD_Measure_VNPLC % (nplc))
-            return float(self.Instrument.query('READ?'))
+        pass
+        #self.Instrument.write("*RST")
     
-    def Measure_INPLC(self, nplc):
-        if self.CMD_Measure_INPLC:
-            self.Instrument.write(self.CMD_Measure_INPLC % (nplc))
-            return float(self.Instrument.query('READ?'))
+    def Calculate_Checksum(self, packet):
+        checksum = 0
+        for char in packet[1:]:
+            checksum += ord(char)
+        checksum = "%2X" % (checksum & 0xFF)
+        return checksum
     
-    def Measure_Current(self, mode):
-        if self.CMD_Measure_Current:
-            return float(self.Instrument.query(self.CMD_Measure_Current % (mode)))
+    def Get_Fix_Temperature(self):
+        response = self.Reading_Register_Random(device_address = self.Device_Address, data_list = [self.Reg_Set_Fix_Temperature])
+        if response != "ERROR":
+            response = int((response.split(",")[2][:-4]),16)
+            temp = round(response / 10, 1)
+        else:
+            temp = 999
+        return temp
+    
+    def Get_Temperature(self):
+        response = self.Reading_Register_Random(device_address = self.Device_Address, data_list = [self.Reg_Get_Temperature])
+        if response != "ERROR":
+            response = int((response.split(",")[2][:-4]),16)
+            temp = round(response / 10, 1)
+        else:
+            temp = 999
+        return temp
+    
+    def Get_Temperature_Slope(self):
+        response = self.Reading_Register_Random(device_address = self.Device_Address, data_list = [self.Reg_Set_Temperature_Slope])
+        if response != "ERROR":
+            response = int((response.split(",")[2][:-4]),16)
+            slope = round(response / 10, 1)
+        else:
+            slope = 999
+        return slope
 
-    def Set_Current_Terminals(self, mode, terminals):
-        if self.CMD_Set_Current_Terminals:
-            self.Instrument.write("SENSe:CURRent:%s:TERMinals %d" % (mode, terminals))
+    def Get_Wet(self):
+        response = self.Reading_Register_Random(device_address = self.Device_Address, data_list = [self.Reg_Get_Wet])
+        if response != "ERROR":
+            response = int((response.split(",")[2][:-4]),16)
+            wet = round(response / 10, 1)
+        else:
+            wet = 999
+        return wet
+    
+    def Reading_Register_Random(self, device_address, data_list):
+        count = 0
+        data_str = ""
+        for reg in data_list:
+            data_str += ",%s" % (reg)
+            count = count + 1
+        response = None
+        packet = "\x02%02dRRD,%02d%s" % (device_address, count, data_str)
+        
+        while self.Busy == True:
+            pass
+        self.Busy = True
+        
+        self.Instrument.flush(mask = visa.constants.VI_IO_IN_BUF_DISCARD | visa.constants.VI_IO_OUT_BUF_DISCARD)
+        try:
+            if self.Check_Sum_State == True:
+                checksum = self.Calculate_Checksum(packet)
+                response = self.Instrument.query(packet + checksum)
+            else:
+                response = self.Instrument.query(packet)
+        except:
+            response = "ERROR"
+
+        self.Busy = False
+        
+        return response
+    
+    def Set_Fix_Temperature(self, fix_temperture):
+        fix_temperture = int(fix_temperture * 10)
+        response = self.Writing_Register_Random(device_address = self.Device_Address, data_dict = {self.Reg_Set_Fix_Temperature: fix_temperture})
+        return response
+    
+    def Set_Operation_Mode(self, mode): #{0: Program, 1: Fix}
+        response = self.Writing_Register_Random(device_address = self.Device_Address, data_dict = {self.Reg_Set_Operation_Mode: mode})
+        return response
+    
+    def Set_Status_Mode(self, mode): #{1:RUN, 2: HOLD, 3: STEP, 4: STOP, 5: HOLD}
+        response = self.Writing_Register_Random(device_address = self.Device_Address, data_dict = {self.Reg_Set_Status_Mode: mode})
+        return response
+
+    def Set_Temperature_Slope(self, slope):
+        slope = int(slope * 10)
+        response = self.Writing_Register_Random(device_address = self.Device_Address, data_dict = {self.Reg_Set_Temperature_Slope: slope})
+        return response
+
+    def Writing_Register_Random(self, device_address, data_dict):
+        count = 0
+        data_str = ""
+        for reg, data in data_dict.items():
+            data_str += ",%s,%04X" % (reg, data)
+            count = count + 1
+        response = None
+        packet = "\x02%02dWRD,%02d%s" % (device_address, count, data_str)
+        
+        while self.Busy == True:
+            pass
+        self.Busy = True
+        
+        self.Instrument.flush(mask = visa.constants.VI_IO_IN_BUF_DISCARD | visa.constants.VI_IO_OUT_BUF_DISCARD)
+        try:
+            if self.Check_Sum_State == True:
+                checksum = self.Calculate_Checksum(packet)
+                response = self.Instrument.query(packet + checksum)
+            else:
+                response = self.Instrument.query(packet)
+        except:
+            response = "ERROR"
+        
+        self.Busy = False
+        
+        return response
 
     def Close(self):
         global INSTR_CNT
@@ -2696,6 +2805,136 @@ class Function_Generator():
     
     def call_wave(self):
         pass
+
+    def Close(self):
+        global INSTR_CNT
+        self.Instrument.close()
+        INSTR_CNT -= 1
+        if INSTR_CNT == 0:
+            self.Resource_Manager.close()
+            
+class DMM():
+    def __init__(self, instrument_address=None):
+        global INSTR_CNT
+        self.State = False
+        self.Resource_Manager = visa.ResourceManager()
+        if instrument_address != None:
+            self.Instrument = self.Resource_Manager.open_resource(instrument_address)
+            self.Instrument.timeout = 20000
+            INSTR_CNT += 1
+
+    def Reset(self):
+        self.Instrument.write("*RST")
+
+    def Config_vol(self, mode, mode_range, mode_resolution = 10):
+        if self.CMD_Config_VMode:
+            if mode_range != "AUTO":
+                mode_range = str(mode_range)
+                self.Instrument.write(self.CMD_Config_VMode % (mode, mode_range, mode_resolution))
+            else:
+                self.Instrument.write(self.CMD_Config_VMode_Auto_Range % (mode))
+
+    def Config_cur(self, mode, mode_range, mode_resolution = 10):
+        if self.CMD_Config_IMode:
+            if mode_range != "AUTO":
+                self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
+            else:
+                self.Instrument.write(self.CMD_Config_IMode_Auto_Range % (mode))
+            if self.Model_Name == "Keysight_34461":
+                self.Set_Current_Terminals(mode = mode, terminals = 10)
+
+    def Measure(self, item, mode):
+        if item == "Voltage":
+            return self.Measure_Voltage(mode)
+        elif item == "Current":
+            return self.Measure_Current(mode)
+
+    def Measure_Voltage(self, mode):
+        if  self.CMD_Measure_Voltage:
+            return float(self.Instrument.query(self.CMD_Measure_Voltage % (mode)))
+
+    def Measure_VNPLC(self, nplc):
+        if self.CMD_Measure_VNPLC:
+            self.Instrument.write(self.CMD_Measure_VNPLC % (nplc))
+            return float(self.Instrument.query('READ?'))
+    
+    def Measure_INPLC(self, nplc):
+        if self.CMD_Measure_INPLC:
+            self.Instrument.write(self.CMD_Measure_INPLC % (nplc))
+            return float(self.Instrument.query('READ?'))
+    
+    def Measure_Current(self, mode):
+        if self.CMD_Measure_Current:
+            return float(self.Instrument.query(self.CMD_Measure_Current % (mode)))
+
+    def Set_Current_Terminals(self, mode, terminals):
+        if self.CMD_Set_Current_Terminals:
+            self.Instrument.write("SENSe:CURRent:%s:TERMinals %d" % (mode, terminals))
+
+    def Close(self):
+        global INSTR_CNT
+        self.Instrument.close()
+        INSTR_CNT -= 1
+        if INSTR_CNT == 0:
+            self.Resource_Manager.close()
+
+class DMM_2():
+    def __init__(self, instrument_address=None):
+        global INSTR_CNT
+        self.State = False
+        self.Resource_Manager = visa.ResourceManager()
+        if instrument_address != None:
+            self.Instrument = self.Resource_Manager.open_resource(instrument_address)
+            self.Instrument.timeout = 20000
+            INSTR_CNT += 1
+
+    def Reset(self):
+        self.Instrument.write("*RST")
+
+    def Config_vol(self, mode, mode_range, mode_resolution = 10):
+        if self.CMD_Config_VMode:
+            if mode_range != "AUTO":
+                mode_range = str(mode_range)
+                self.Instrument.write(self.CMD_Config_VMode % (mode, mode_range, mode_resolution))
+            else:
+                self.Instrument.write(self.CMD_Config_VMode_Auto_Range % (mode))
+
+    def Config_cur(self, mode, mode_range, mode_resolution = 10):
+        if self.CMD_Config_IMode:
+            if mode_range != "AUTO":
+                self.Instrument.write(self.CMD_Config_IMode % (mode, mode_range, mode_resolution))
+            else:
+                self.Instrument.write(self.CMD_Config_IMode_Auto_Range % (mode))
+            if self.Model_Name == "Keysight_34461":
+                self.Set_Current_Terminals(mode = mode, terminals = 10)
+
+    def Measure(self, item, mode):
+        if item == "Voltage":
+            return self.Measure_Voltage(mode)
+        elif item == "Current":
+            return self.Measure_Current(mode)
+
+    def Measure_Voltage(self, mode):
+        if  self.CMD_Measure_Voltage:
+            return float(self.Instrument.query(self.CMD_Measure_Voltage % (mode)))
+
+    def Measure_VNPLC(self, nplc):
+        if self.CMD_Measure_VNPLC:
+            self.Instrument.write(self.CMD_Measure_VNPLC % (nplc))
+            return float(self.Instrument.query('READ?'))
+    
+    def Measure_INPLC(self, nplc):
+        if self.CMD_Measure_INPLC:
+            self.Instrument.write(self.CMD_Measure_INPLC % (nplc))
+            return float(self.Instrument.query('READ?'))
+    
+    def Measure_Current(self, mode):
+        if self.CMD_Measure_Current:
+            return float(self.Instrument.query(self.CMD_Measure_Current % (mode)))
+
+    def Set_Current_Terminals(self, mode, terminals):
+        if self.CMD_Set_Current_Terminals:
+            self.Instrument.write("SENSe:CURRent:%s:TERMinals %d" % (mode, terminals))
 
     def Close(self):
         global INSTR_CNT
