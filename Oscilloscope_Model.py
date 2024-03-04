@@ -1,11 +1,11 @@
 """
  * @File       : Oscilloscope_Model.py
- * @Version    : V1.4.0
- * @Date       : Nov 29, 2022
+ * @Version    : V1.5.0
+ * @Date       : Mar 4, 2024
  * @Brief      : Child class of Oscilloscope.
  * @Author     : Rex Wang
  * @Last editor: Rex Wang
- * Copyright (C) 2022 Alpha & Omega Semiconductor Ltd. All rights reserved.
+ * Copyright (C) 2024 Alpha & Omega Semiconductor Ltd. All rights reserved.
 """
 
 from Library.INSTR import Oscilloscope
@@ -33,12 +33,18 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Measurement_Clear                   = "PARAMETER_CLR"
     CMD_Measurement_Delete                  = "PARAMETER_CUSTOM %d, NULL, C1"
     CMD_Measurement_Label                   = ""
+    CMD_Measurement_Measure_Range_Max       = ""
+    CMD_Measurement_Measure_Range_Min       = ""
+    CMD_Measurement_Measure_Range_State     = ""
     CMD_Measurement_Mode                    = ""
     CMD_Measurement_Gate_Start              = "vbs app.Measure.P%d.GateStart = %.2f"
     CMD_Measurement_Gate_Stop               = "vbs app.Measure.P%d.GateStop = %.2f"
     CMD_Measurement_Setting                 = "PARAMETER_CUSTOM %d, %s"
     CMD_Measurement_Statistics_State        = "vbs app.Measure.StatsOn = %d"
     CMD_Measurement_Global_State            = ""
+    CMD_Measurement_Population_Global       = ""
+    CMD_Measurement_Population_State        = ""
+    CMD_Measurement_Population_Value        = ""
     CMD_Print_Screen                        = "SCREEN_DUMP"
     CMD_Print_Setting                       = "HARDCOPY_SETUP DEV, %s, BCKG, %s, DEST, %s, AREA, %s, PORT, %s"
     CMD_Set_Acquire_mode                    = ""
@@ -49,9 +55,13 @@ class Lecroy_HDO4034A(Oscilloscope):
     VAR_Set_Channel_Coupling                = {"AC":"A1M", "DC":"D1M", "DC50":"D50", "GND":"GND", "IAC":"AC", "IDC":"DC"} #channel_coupling: {"AC":"AC", "DC":"DC", "DC50":"D50", "DCREJ":"DCREJ", "GND":"GND", "IAC":Current"AC", "IDC":Current"DC"}
     CMD_Set_Channel_Label                   = 'vbs app.Acquisition.C%d.LabelsText = "%s"'
     CMD_Set_Channel_Label_State             = "vbs app.Acquisition.C%d.ViewLabels = %d"
+    CMD_Set_Channel_Label_X_Position        = ""
+    CMD_Set_Channel_Label_Y_Position        = ""
     CMD_Set_Channel_Noise_Filter            = 'vbs app.Acquisition.Channels("C%d").EnhanceResType = %d'
     CMD_Set_Channel_Range                   = ""
     CMD_Set_Channel_Range_Mode              = ""
+    CMD_Set_Channel_Termination             = ""
+    CMD_Set_Display_Select_Source           = ""
     CMD_Set_Channel_Trace_State_Off         = "C%d:TRACE OFF"
     CMD_Set_Channel_Trace_State_On          = "C%d:TRACE ON"
     CMD_Set_Channel_Voltage_Offset          = "C%d:OFFSET %f"
@@ -74,6 +84,7 @@ class Lecroy_HDO4034A(Oscilloscope):
     CMD_Set_Cursor_State_ON                 = ""
     CMD_Set_Display_Grid                    = "GRID %s"
     VAR_Set_Display_Grid                    = {"Overlay":"SINGLE", "Stacked":"AUTO"}
+    CMD_Set_Display_Grid_Type               = ""
     CMD_Set_Display_State_Off               = "DISPLAY OFF"
     CMD_Set_Display_State_On                = "DISPLAY ON"
     CMD_Set_Persistence_Color               = "PERSIST_COLOR %s"
@@ -452,12 +463,18 @@ class Lecroy_44MXs_A(Oscilloscope):
     CMD_Measurement_Clear                   = "PARAMETER_CLR"
     CMD_Measurement_Delete                  = "PARAMETER_CUSTOM %d, NULL, C1"
     CMD_Measurement_Label                   = ""
+    CMD_Measurement_Measure_Range_Max       = ""
+    CMD_Measurement_Measure_Range_Min       = ""
+    CMD_Measurement_Measure_Range_State     = ""
     CMD_Measurement_Mode                    = ""
     CMD_Measurement_Gate_Start              = "vbs app.Measure.P%d.GateStart = %.2f"
     CMD_Measurement_Gate_Stop               = "vbs app.Measure.P%d.GateStop = %.2f"
     CMD_Measurement_Setting                 = "PARAMETER_CUSTOM %d, %s"
     CMD_Measurement_Statistics_State        = "vbs app.Measure.StatsOn = %d"
     CMD_Measurement_Global_State            = ""
+    CMD_Measurement_Population_Global       = ""
+    CMD_Measurement_Population_State        = ""
+    CMD_Measurement_Population_Value        = ""
     CMD_Print_Screen                        = "SCREEN_DUMP"
     CMD_Print_Setting                       = "HARDCOPY_SETUP DEV, %s, BCKG, %s, DEST, %s, AREA, %s, PORT, %s"
     CMD_Set_Acquire_mode                    = ""
@@ -468,9 +485,12 @@ class Lecroy_44MXs_A(Oscilloscope):
     VAR_Set_Channel_Coupling                = {"AC":"A1M", "DC":"D1M", "DC50":"D50", "GND":"GND", "IAC":"AC", "IDC":"DC"} #channel_coupling: {"AC":"AC", "DC":"DC", "DC50":"D50", "DCREJ":"DCREJ", "GND":"GND", "IAC":Current"AC", "IDC":Current"DC"}
     CMD_Set_Channel_Label                   = 'vbs app.Acquisition.C%d.LabelsText = "%s"'
     CMD_Set_Channel_Label_State             = "vbs app.Acquisition.C%d.ViewLabels = %d"
+    CMD_Set_Channel_Label_X_Position        = ""
+    CMD_Set_Channel_Label_Y_Position        = ""
     CMD_Set_Channel_Noise_Filter            = 'vbs app.Acquisition.Channels("C%d").EnhanceResType = %d'
     CMD_Set_Channel_Range                   = ""
     CMD_Set_Channel_Range_Mode              = ""
+    CMD_Set_Channel_Termination             = ""
     CMD_Set_Channel_Trace_State_Off         = "C%d:TRACE OFF"
     CMD_Set_Channel_Trace_State_On          = "C%d:TRACE ON"
     CMD_Set_Channel_Voltage_Offset          = "C%d:OFFSET %f"
@@ -493,6 +513,8 @@ class Lecroy_44MXs_A(Oscilloscope):
     CMD_Set_Cursor_State_ON                 = ""
     CMD_Set_Display_Grid                    = "GRID %s"
     VAR_Set_Display_Grid                    = {"Overlay":"SINGLE", "Stacked":"AUTO"}
+    CMD_Set_Display_Grid_Type               = ""
+    CMD_Set_Display_Select_Source           = ""
     CMD_Set_Display_State_Off               = "DISPLAY OFF"
     CMD_Set_Display_State_On                = "DISPLAY ON"
     CMD_Set_Persistence_Color               = "PERSIST_COLOR %s"
@@ -800,12 +822,18 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Measurement_Clear                   = "MEASUrement:DELETEALL"
     CMD_Measurement_Delete                  = 'MEASUREMENT:DELETE "MEAS%d"'
     CMD_Measurement_Label                   = 'MEASUrement:MEAS%d:LABel "%s"'
+    CMD_Measurement_Measure_Range_Max       = "MEASUrement:MEAS%d:MEASRange:MAX %.15f"
+    CMD_Measurement_Measure_Range_Min       = "MEASUrement:MEAS%d:MEASRange:MIN %.15f"
+    CMD_Measurement_Measure_Range_State     = "MEASUrement:MEAS%d:MEASRange:STATE %d"
     CMD_Measurement_Mode                    = 'MEASUrement:GATing %s'#NONE|SCREEN|CURSor|LOGic|SEARch
     CMD_Measurement_Gate_Start              = "MEASUrement:MEAS%d:GATing:STARTtime %.15f"
     CMD_Measurement_Gate_Stop               = "MEASUrement:MEAS%d:GATing:ENDtime %.15f"
     CMD_Measurement_Setting                 = 'MEASUrement:ADDNew "MEAS%d"'
     CMD_Measurement_Statistics_State        = "MEASUrement:MEAS%d:DISPlaystat:ENABle %d"
     CMD_Measurement_Global_State            = "MEASUrement:MEAS%d:GLOBalref %d"
+    CMD_Measurement_Population_Global       = "MEASUrement:MEAS%d:POPUlation:GLOBal %d"
+    CMD_Measurement_Population_State        = "MEASUrement:MEAS%d:POPUlation:LIMIT:STATE %d"
+    CMD_Measurement_Population_Value        = "MEASUrement:MEAS%d:POPUlation:LIMIT:VALue %d"
     CMD_Print_Screen                        = "SAVE:IMAGE 'temp.png'"
     CMD_Print_Setting                       = ""
     CMD_Set_Acquire_mode                    = "ACQuire:MODe %s" #{SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
@@ -816,9 +844,12 @@ class Tektronix_MSO58(Oscilloscope):
     VAR_Set_Channel_Coupling                = {"AC":"AC", "DC":"DC", "DCREJ":"DCREJ", "IAC":"AC", "IDC":"DC"} #channel_coupling: {0:"AC", 1:"DC", 2:"D50", 3:"DCREJ", 4:"GND", 5:Current"AC", 6:Current"DC"}
     CMD_Set_Channel_Label                   = "CH%d:LABEL:NAME '%s'"
     CMD_Set_Channel_Label_State             = ""
+    CMD_Set_Channel_Label_X_Position        = "CH%d:LABel:XPOS %d"
+    CMD_Set_Channel_Label_Y_Position        = "CH%d:LABel:YPOS %d"
     CMD_Set_Channel_Noise_Filter            = ""
     CMD_Set_Channel_Range                   = "CH%d:PRObe:FORCEDRange %d"
     CMD_Set_Channel_Range_Mode              = "CH%d:PROBECOntrol %s"#AUTO|MANual
+    CMD_Set_Channel_Termination             = "CH%d:TERmination %d" #50, 1000000
     CMD_Set_Channel_Trace_State_Off         = "DISplay:GLObal:CH%d:STATE OFF"
     CMD_Set_Channel_Trace_State_On          = "DISplay:GLObal:CH%d:STATE ON"
     CMD_Set_Channel_Voltage_Offset          = "CH%d:OFFSET %f"
@@ -841,6 +872,8 @@ class Tektronix_MSO58(Oscilloscope):
     CMD_Set_Cursor_State_ON                 = "DISplay:WAVEView1:CURSor:CURSOR1:STATE ON"
     CMD_Set_Display_Grid                    = "DISplay:WAVEView1:VIEWStyle %s"
     VAR_Set_Display_Grid                    = {"Overlay":"OVErlay", "Stacked":"STAcked"}
+    CMD_Set_Display_Grid_Type               = "DISplay:WAVEView:GRIDTYPE %s" #"MOVEABLE", "FIXED"
+    CMD_Set_Display_Select_Source           = "DISplay:SELect:SOUrce %s"
     CMD_Set_Display_State_Off               = ""
     CMD_Set_Display_State_On                = ""
     CMD_Set_Persistence_Color               = ""
@@ -1106,12 +1139,18 @@ class Tektronix_MSO54(Oscilloscope):
     CMD_Measurement_Clear                   = "MEASUrement:DELETEALL"
     CMD_Measurement_Delete                  = 'MEASUREMENT:DELETE "MEAS%d"'
     CMD_Measurement_Label                   = 'MEASUrement:MEAS%d:LABel "%s"'
+    CMD_Measurement_Measure_Range_Max       = "MEASUrement:MEAS%d:MEASRange:MAX %.15f"
+    CMD_Measurement_Measure_Range_Min       = "MEASUrement:MEAS%d:MEASRange:MIN %.15f"
+    CMD_Measurement_Measure_Range_State     = "MEASUrement:MEAS%d:MEASRange:STATE %d"
     CMD_Measurement_Mode                    = 'MEASUrement:GATing %s'#NONE|SCREEN|CURSor|LOGic|SEARch
     CMD_Measurement_Gate_Start              = "MEASUrement:MEAS%d:GATing:STARTtime %.15f"
     CMD_Measurement_Gate_Stop               = "MEASUrement:MEAS%d:GATing:ENDtime %.15f"
     CMD_Measurement_Setting                 = 'MEASUrement:ADDNew "MEAS%d"'
     CMD_Measurement_Statistics_State        = "MEASUrement:MEAS%d:DISPlaystat:ENABle %d"
     CMD_Measurement_Global_State            = "MEASUrement:MEAS%d:GLOBalref %d"
+    CMD_Measurement_Population_Global       = "MEASUrement:MEAS<x>:POPUlation:GLOBal %d"
+    CMD_Measurement_Population_State        = "MEASUrement:MEAS<x>:POPUlation:LIMIT:STATE %d"
+    CMD_Measurement_Population_Value        = "MEASUrement:MEAS<x>:POPUlation:LIMIT:VALue %d"
     CMD_Print_Screen                        = "SAVE:IMAGE 'temp.png'"
     CMD_Print_Setting                       = ""
     CMD_Set_Acquire_mode                    = "ACQuire:MODe %s" #{SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
@@ -1122,9 +1161,12 @@ class Tektronix_MSO54(Oscilloscope):
     VAR_Set_Channel_Coupling                = {"AC":"AC", "DC":"DC", "DCREJ":"DCREJ", "IAC":"AC", "IDC":"DC"} #channel_coupling: {0:"AC", 1:"DC", 2:"D50", 3:"DCREJ", 4:"GND", 5:Current"AC", 6:Current"DC"}
     CMD_Set_Channel_Label                   = "CH%d:LABEL:NAME '%s'"
     CMD_Set_Channel_Label_State             = ""
+    CMD_Set_Channel_Label_X_Position        = "CH%d:LABel:XPOS %d"
+    CMD_Set_Channel_Label_Y_Position        = "CH%d:LABel:YPOS %d"
     CMD_Set_Channel_Noise_Filter            = ""
     CMD_Set_Channel_Range                   = "CH%d:PRObe:FORCEDRange %d"
     CMD_Set_Channel_Range_Mode              = "CH%d:PROBECOntrol %s"#AUTO|MANual
+    CMD_Set_Channel_Termination             = ""
     CMD_Set_Channel_Trace_State_Off         = "DISplay:GLObal:CH%d:STATE OFF"
     CMD_Set_Channel_Trace_State_On          = "DISplay:GLObal:CH%d:STATE ON"
     CMD_Set_Channel_Voltage_Offset          = "CH%d:OFFSET %f"
@@ -1147,6 +1189,8 @@ class Tektronix_MSO54(Oscilloscope):
     CMD_Set_Cursor_State_ON                 = "DISplay:WAVEView1:CURSor:CURSOR1:STATE ON"
     CMD_Set_Display_Grid                    = "DISplay:WAVEView1:VIEWStyle %s"
     VAR_Set_Display_Grid                    = {"Overlay":"OVErlay", "Stacked":"STAcked"}
+    CMD_Set_Display_Grid_Type               = "DISplay:WAVEView:GRIDTYPE %s" #"MOVEABLE", "FIXED"
+    CMD_Set_Display_Select_Source           = "DISplay:SELect:SOUrce %s"
     CMD_Set_Display_State_Off               = ""
     CMD_Set_Display_State_On                = ""
     CMD_Set_Persistence_Color               = ""
@@ -1413,12 +1457,18 @@ class Tektronix_DPO7054C(Oscilloscope):
     CMD_Measurement_Clear                   = ""
     CMD_Measurement_Delete                  = ""
     CMD_Measurement_Label                   = ""
+    CMD_Measurement_Measure_Range_Max       = ""
+    CMD_Measurement_Measure_Range_Min       = ""
+    CMD_Measurement_Measure_Range_State     = ""
     CMD_Measurement_Mode                    = ""
     CMD_Measurement_Gate_Start              = "CURSor:VBArs:POSITION1 %.15f"
     CMD_Measurement_Gate_Stop               = "CURSor:VBArs:POSITION2 %.15f"
     CMD_Measurement_Setting                 = 'MEASUrement:MEAS%d:STATE ON'
     CMD_Measurement_Statistics_State        = "MEASUrement:STATIstics:MODe %s"
     CMD_Measurement_Global_State            = ""
+    CMD_Measurement_Population_Global       = ""
+    CMD_Measurement_Population_State        = ""
+    CMD_Measurement_Population_Value        = ""
     CMD_Print_Screen                        = "SAVE:IMAGE 'temp.png'"
     CMD_Print_Setting                       = ""
     CMD_Set_Acquire_mode                    = "ACQuire:MODe %s" #{SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
@@ -1429,9 +1479,12 @@ class Tektronix_DPO7054C(Oscilloscope):
     VAR_Set_Channel_Coupling                = {"AC":"AC", "DC":"DC", "DCREJ":"DCREJect", "GND":"GND", "IAC":"AC", "IDC":"DC"} #channel_coupling: {0:"AC", 1:"DC", 2:"D50", 3:"DCREJ", 4:"GND", 5:Current"AC", 6:Current"DC"}
     CMD_Set_Channel_Label                   = "CH%d:LABEL:NAME '%s'"
     CMD_Set_Channel_Label_State             = ""
+    CMD_Set_Channel_Label_X_Position        = "CH%d:LABel:XPOS %d"
+    CMD_Set_Channel_Label_Y_Position        = "CH%d:LABel:YPOS %d"
     CMD_Set_Channel_Noise_Filter            = ""
     CMD_Set_Channel_Range                   = "CH%d:PRObe:FORCEDRange %d"
     CMD_Set_Channel_Range_Mode              = "CH%d:PROBECOntrol %s"#AUTO|MANual
+    CMD_Set_Channel_Termination             = ""
     CMD_Set_Channel_Trace_State_Off         = "SELECT:CH%d OFF"
     CMD_Set_Channel_Trace_State_On          = "SELECT:CH%d ON"
     CMD_Set_Channel_Voltage_Offset          = "CH%d:OFFSET %f"
@@ -1453,6 +1506,8 @@ class Tektronix_DPO7054C(Oscilloscope):
     CMD_Set_Cursor_State_ON                 = ""
     CMD_Set_Display_Grid                    = ""
     VAR_Set_Display_Grid                    = {}
+    CMD_Set_Display_Grid_Type               = ""
+    CMD_Set_Display_Select_Source           = ""
     CMD_Set_Display_State_Off               = ""
     CMD_Set_Display_State_On                = ""
     CMD_Set_Persistence_Color               = ""
